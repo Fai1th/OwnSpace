@@ -78,6 +78,8 @@ function Editor({ demo }: { demo: boolean }) {
   const [paymentChecking, setPaymentChecking] = useState(false);
   const [panel, setPanel] = useState<Panel>("about");
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -153,15 +155,14 @@ function Editor({ demo }: { demo: boolean }) {
         }
       } catch (e) {
         if (live) {
-          setError((e as Error).message);
-          setReady(true);
+          setLoadError((e as Error).message || "Your space could not be loaded. Please try again.");
         }
       }
     })();
     return () => {
       live = false;
     };
-  }, [demo]);
+  }, [demo, loadAttempt]);
   useEffect(() => {
     if (!ready) return;
     setDirty(JSON.stringify(profile) !== baseline.current);
@@ -395,6 +396,31 @@ function Editor({ demo }: { demo: boolean }) {
       {help && <span className="field-help">{help}</span>}
     </label>
   );
+  if (loadError)
+    return (
+      <div className="studio">
+        <header className="studio-top">
+          <Logo />
+          {!demo && <UserButton />}
+        </header>
+        <main id="main" className="auth-page">
+          <div className="setting-box">
+            <h1>Your space could not be opened.</h1>
+            <p role="alert">{loadError}</p>
+            <p>Your saved page stays as it is. Retry when your connection is ready.</p>
+            <button
+              className="button"
+              onClick={() => {
+                setLoadError("");
+                setLoadAttempt((attempt) => attempt + 1);
+              }}
+            >
+              Retry opening your space
+            </button>
+          </div>
+        </main>
+      </div>
+    );
   if (!ready)
     return (
       <div className="studio">

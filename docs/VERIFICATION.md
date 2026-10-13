@@ -1,6 +1,16 @@
 # Verification ledger
 
-Verified October 13, 2026, approximately 7:00 AM America/Chicago.
+Verified October 13, 2026, approximately 7:35 AM America/Chicago.
+
+## Overnight audit: October 13, approximately 7:35 AM Central
+
+- Reproduced a temporary authenticated profile-load failure opening an empty editable profile labeled Draft saved. The editor now stays closed behind an accessible error screen with an explicit retry until the saved account page has loaded.
+- The failing React component test now passes: no Save or editable profile is exposed after a load error, and retry restores the actual saved profile.
+- Added publication error/retry coverage through the real editor: newer edits remain private after a failed publish, and a later retry saves them with the correct version before publishing.
+- **55 unit/component/database tests passed** across 15 files. TypeScript, formatting and compiled preview build passed.
+- **8 compiled-server desktop/mobile browser checks passed**, covering invalid-link errors, unfinished drafts, save/reload/reordering/preview, blocked unauthenticated publication, API boundaries and accessibility.
+- Authenticated load and publication responses in component tests use local boundary fixtures. No live Clerk, Stripe, Composio or hosted Postgres credentials were available or used; no page was published externally.
+- Compiled local preview remains at http://127.0.0.1:3002. Hourly audits remain active until the 9 AM Central cutoff.
 
 ## Overnight audit: October 13, approximately 7:00 AM Central
 
