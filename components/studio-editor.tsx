@@ -117,6 +117,7 @@ function Editor({ demo }: { demo: boolean }) {
           );
         }
         let initial = { ...emptyProfile };
+        let savedAccountPage = false;
         if (query.get("handle")) initial.handle = normalizeHandle(query.get("handle")!);
         if (themes.some((t) => t.id === query.get("template")))
           initial.theme = query.get("template") as Profile["theme"];
@@ -134,6 +135,7 @@ function Editor({ demo }: { demo: boolean }) {
           if (!r.ok) throw Error(data.error);
           if (live) observeEntitlement(data.entitlement || data.profile?.entitlement || "free");
           if (data.profile) {
+            savedAccountPage = true;
             initial = data.profile.draft;
             if (live) setRecord(data.profile);
           } else {
@@ -150,7 +152,7 @@ function Editor({ demo }: { demo: boolean }) {
         }
         if (live) {
           setProfile(initial);
-          baseline.current = JSON.stringify(initial);
+          baseline.current = !demo && !savedAccountPage ? "" : JSON.stringify(initial);
           setReady(true);
         }
       } catch (e) {
@@ -346,6 +348,14 @@ function Editor({ demo }: { demo: boolean }) {
       setError((e as Error).message);
     }
   }
+  function removeBrowserDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      return true;
+    } catch {
+      return false;
+    }
+  }
   function exportData() {
     const data = JSON.stringify({ profile, exportedAt: new Date().toISOString() }, null, 2);
     const url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
@@ -434,7 +444,13 @@ function Editor({ demo }: { demo: boolean }) {
         <Logo />
         <div className="studio-top-actions">
           <span className="save-indicator">
-            {dirty ? "Unsaved changes" : demo ? "Browser draft" : "Draft saved"}
+            {dirty
+              ? "Unsaved changes"
+              : demo
+                ? "Browser draft"
+                : record
+                  ? "Draft saved"
+                  : "Not saved to account"}
           </span>
           <button className="button secondary small" onClick={() => setPreview(true)}>
             <EyeIcon />
@@ -1077,10 +1093,15 @@ function Editor({ demo }: { demo: boolean }) {
                         return;
                       }
                       await request("/api/profile", "DELETE");
+                      const browserCleared = removeBrowserDraft();
                       setRecord(null);
                       baseline.current = JSON.stringify(emptyProfile);
                       setProfile({ ...emptyProfile });
-                      setMessage("Your space has been deleted.");
+                      setMessage(
+                        browserCleared
+                          ? "Your space has been deleted."
+                          : "Your space has been deleted online. This browser could not remove its draft copy; clear this site’s browser data to remove it.",
+                      );
                       setDeleteText("");
                     })
                   }
@@ -1094,6 +1115,16 @@ function Editor({ demo }: { demo: boolean }) {
                     onClick={() =>
                       void action(async () => {
                         await request("/api/account", "DELETE");
+                        setRecord(null);
+                        baseline.current = JSON.stringify(emptyProfile);
+                        setProfile({ ...emptyProfile });
+                        setDeleteText("");
+                        if (!removeBrowserDraft()) {
+                          setMessage(
+                            "Your account has been deleted. This browser could not remove its draft copy; clear this site’s browser data to remove it.",
+                          );
+                          return;
+                        }
                         location.assign("/");
                       })
                     }

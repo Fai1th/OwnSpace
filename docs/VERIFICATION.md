@@ -1,6 +1,17 @@
 # Verification ledger
 
-Verified October 13, 2026, approximately 7:35 AM America/Chicago.
+Verified October 13, 2026, approximately 8:40 AM America/Chicago.
+
+## Overnight audit: October 13, approximately 8:40 AM Central
+
+- Reproduced a deleted online page returning from an older browser draft on the next editor load. Successful page/account deletion now clears this browser's fallback draft; failed online deletion retains its content.
+- Browser cleanup failure is reported accurately after successful online deletion, with instructions to clear this site's browser data rather than claiming every copy was removed.
+- Reproduced an imported browser draft being labeled saved before its first account save. Account drafts without a persisted page now remain unsaved and trigger the existing leave-page warning until server saving succeeds.
+- Added React component regression coverage for deletion/reload, failed deletion, confirmed account deletion, denied browser cleanup and imported-draft save/leave behavior.
+- **60 unit/component/database tests passed** across 15 files. TypeScript, formatting and compiled preview build passed.
+- **10 compiled-server desktop/mobile browser checks passed**, including browser-draft deletion/reload, invalid links, unfinished drafts, editing/save/reordering/preview, unauthenticated API boundaries and accessibility.
+- Only .env.example exists. Authenticated API responses in component tests are local fixtures; live Clerk/Stripe/Composio/hosted Postgres behavior remains unverified without credentials. No external page was published.
+- Compiled local preview remains at http://127.0.0.1:3002. At the first audit after 9 AM Central, finish the current check, issue the final status and pause the automation.
 
 ## Overnight audit: October 13, approximately 7:35 AM Central
 

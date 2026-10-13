@@ -51,6 +51,135 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
+it("does not restore an older browser draft after deleting an account page", async () => {
+  localStorage.setItem(
+    "ownspace-draft-v1",
+    JSON.stringify({ ...record.draft, displayName: "Old browser copy" }),
+  );
+  let deleted = false;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_url: string, options?: RequestInit) => {
+      if (options?.method === "DELETE") {
+        deleted = true;
+        return Promise.resolve({ ok: true, json: async () => ({ deleted: true }) } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ profile: deleted ? null : record }),
+      } as Response);
+    }),
+  );
+  const editor = render(<StudioEditor demo={false} />);
+  await screen.findByLabelText("Display name");
+  fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+  fireEvent.change(screen.getByLabelText("Confirmation"), { target: { value: "DELETE" } });
+  fireEvent.click(screen.getByRole("button", { name: "Delete page" }));
+  await screen.findByText("Your space has been deleted.");
+  editor.unmount();
+  render(<StudioEditor demo={false} />);
+  const name = await screen.findByLabelText("Display name");
+  expect((name as HTMLInputElement).value).toBe("Your name");
+  expect(localStorage.getItem("ownspace-draft-v1")).toBeNull();
+});
+
+it("retains the browser draft and page when online deletion fails", async () => {
+  localStorage.setItem("ownspace-draft-v1", JSON.stringify(record.draft));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_url: string, options?: RequestInit) =>
+      options?.method === "DELETE"
+        ? Promise.resolve({
+            ok: false,
+            json: async () => ({ error: "Deletion unavailable." }),
+          } as Response)
+        : Promise.resolve(response(record)),
+    ),
+  );
+  render(<StudioEditor demo={false} />);
+  await screen.findByLabelText("Display name");
+  fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+  fireEvent.change(screen.getByLabelText("Confirmation"), { target: { value: "DELETE" } });
+  fireEvent.click(screen.getByRole("button", { name: "Delete page" }));
+  await screen.findByText("Deletion unavailable.");
+  expect(JSON.parse(localStorage.getItem("ownspace-draft-v1")!).displayName).toBe("Alice");
+  fireEvent.click(screen.getByRole("button", { name: "Your profile" }));
+  expect((screen.getByLabelText("Display name") as HTMLInputElement).value).toBe("Alice");
+});
+
+it("clears the browser draft after confirmed account deletion", async () => {
+  localStorage.setItem("ownspace-draft-v1", JSON.stringify(record.draft));
+  const assign = vi.fn();
+  vi.stubGlobal("location", { search: "", assign });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_url: string, options?: RequestInit) =>
+      options?.method === "DELETE"
+        ? Promise.resolve({ ok: true, json: async () => ({ deleted: true }) } as Response)
+        : Promise.resolve(response(record)),
+    ),
+  );
+  render(<StudioEditor demo={false} />);
+  await screen.findByLabelText("Display name");
+  fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+  fireEvent.change(screen.getByLabelText("Confirmation"), { target: { value: "DELETE" } });
+  fireEvent.click(screen.getByRole("button", { name: "Delete account and page" }));
+  await waitFor(() => expect(localStorage.getItem("ownspace-draft-v1")).toBeNull());
+  expect(assign).toHaveBeenCalledWith("/");
+});
+
+it("explains partial cleanup when this browser refuses draft removal", async () => {
+  localStorage.setItem("ownspace-draft-v1", JSON.stringify(record.draft));
+  vi.spyOn(localStorage, "removeItem").mockImplementation(() => {
+    throw new Error("Storage blocked");
+  });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_url: string, options?: RequestInit) =>
+      options?.method === "DELETE"
+        ? Promise.resolve({ ok: true, json: async () => ({ deleted: true }) } as Response)
+        : Promise.resolve(response(record)),
+    ),
+  );
+  render(<StudioEditor demo={false} />);
+  await screen.findByLabelText("Display name");
+  fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+  fireEvent.change(screen.getByLabelText("Confirmation"), { target: { value: "DELETE" } });
+  fireEvent.click(screen.getByRole("button", { name: "Delete page" }));
+  await screen.findByText(/deleted online.*clear this site’s browser data/);
+  expect(screen.queryByText("Draft saved")).toBeNull();
+});
+
+it("marks a browser draft imported into a new account as unsaved until server save succeeds", async () => {
+  localStorage.setItem(
+    "ownspace-draft-v1",
+    JSON.stringify({ ...record.draft, displayName: "Browser content" }),
+  );
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_url: string, options?: RequestInit) => {
+      if (options?.method === "PUT") {
+        const body = JSON.parse(options.body as string);
+        return Promise.resolve(response({ ...record, draft: body.profile }));
+      }
+      return Promise.resolve({ ok: true, json: async () => ({ profile: null }) } as Response);
+    }),
+  );
+  render(<StudioEditor demo={false} />);
+  const name = await screen.findByLabelText("Display name");
+  expect((name as HTMLInputElement).value).toBe("Browser content");
+  expect(screen.queryByText("Draft saved")).toBeNull();
+  expect(screen.getByText("Unsaved changes")).toBeTruthy();
+  await waitFor(() => {
+    const leaving = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(leaving);
+    expect(leaving.defaultPrevented).toBe(true);
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Save" }));
+  await screen.findByText("Your submitted draft is saved.");
+  expect(screen.getByText("Draft saved")).toBeTruthy();
+});
+
 it("keeps a failed account load out of the editor and restores the saved page on retry", async () => {
   let failed = true;
   vi.stubGlobal(

@@ -12,6 +12,25 @@ test("a checkout return URL cannot unlock Premium in the local preview", async (
   await expect(page.getByRole("button", { name: "Unlock Premium" })).toBeDisabled();
   expect(statusRequests).toEqual([]);
 });
+test("deleting a browser draft removes its content after reload", async ({ page }) => {
+  await page.goto("/studio");
+  await page.getByRole("button", { name: "Reject optional" }).click();
+  await page.getByLabel("Display name", { exact: true }).fill("Delete this draft");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Draft saved");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const remove = page.getByRole("button", { name: "Delete page", exact: true });
+  await expect(remove).toBeDisabled();
+  await page.getByLabel("Confirmation", { exact: true }).fill("DELETE");
+  await remove.click();
+  await expect(page.getByRole("status")).toContainText("Browser draft deleted");
+  await page.reload();
+  await expect(page.getByLabel("Display name", { exact: true })).toHaveValue("Your name");
+  expect(await page.evaluate(() => localStorage.getItem("ownspace-draft-v1") || "")).not.toContain(
+    "Delete this draft",
+  );
+});
+
 test("Global Privacy Control overrides an earlier optional consent", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(
