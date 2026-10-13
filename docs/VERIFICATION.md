@@ -1,6 +1,16 @@
 # Verification ledger
 
-Verified October 13, 2026, approximately 8:40 AM America/Chicago.
+Verified October 13, 2026, approximately 9:30 AM America/Chicago.
+
+## Final overnight status: October 13, approximately 9:30 AM Central
+
+- Finished the current check after the user's 9 AM cutoff. No new reproducible issue was found in this final billing/consent pass.
+- Final focused checks: **15 tests passed** across four files covering signed dispute webhook handling, Premium/handle restrictions, account entitlements and consent storage.
+- Final compiled-server browser checks: **8 passed** at desktop/mobile sizes covering rejection persistence with blocked localStorage, cross-tab withdrawal, granular rejection and Global Privacy Control.
+- The latest full local verification at 8:40 AM passed **60 unit/component/database tests**, TypeScript, formatting and compiled build. The current compiled bundle also passed ten editor/deletion/accessibility/API browser checks in that audit.
+- Local Git changes are committed. The full product and dependencies remain on D:, with local preview at http://127.0.0.1:3002.
+- Overnight automation **ownspace-overnight-bug-checks is PAUSED**, confirmed through the app tool and saved configuration. No recurring overnight runs remain active.
+- Live Clerk sign-in, Stripe Checkout/webhooks, Composio OAuth and hosted Postgres still require user credentials and provider dashboard setup. Legal/operator configuration remains required before production. No production credentials, external publishing, outreach or purchases were used.
 
 ## Overnight audit: October 13, approximately 8:40 AM Central
 
@@ -116,7 +126,7 @@ No real Clerk, Stripe, Composio or hosted Postgres credentials were supplied. No
 
 ## Overnight automation
 
-Hourly follow-up audit remains active in this chat through 9:00 AM America/Chicago October 13, 2026. Reuse this ledger and current code. Fix reproducible new issues; do not repeat all checks without a new change or unresolved concern. Stay quiet when nothing meaningful changes. Pause the automation after the 9 AM cutoff.
+Paused October 13, 2026, approximately 9:30 AM America/Chicago after finishing the cutoff check. The saved automation status was verified as PAUSED. Resume only if the user requests further scheduled work; reuse this ledger and current code.
 
 ## Deferred minor items
 
