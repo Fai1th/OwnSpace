@@ -6,7 +6,9 @@ import { ownerId, assertOrigin, readJson, apiError, json, ApiError } from "@/lib
 export async function GET() {
   try {
     const owner = await ownerId();
-    return json({ profile: await (await getRepository()).get(owner) });
+    const repo = await getRepository();
+    const [profile, entitlement] = await Promise.all([repo.get(owner), repo.entitlement(owner)]);
+    return json({ profile, entitlement });
   } catch (e) {
     return apiError(e);
   }

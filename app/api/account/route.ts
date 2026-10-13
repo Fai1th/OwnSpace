@@ -1,6 +1,15 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { cleanup } from "@/lib/account-cleanup";
+import { getRepository } from "@/lib/db";
 import { ownerId, assertOrigin, apiError, json } from "@/lib/http";
+export async function GET() {
+  try {
+    const owner = await ownerId();
+    return json({ entitlement: await (await getRepository()).entitlement(owner) });
+  } catch (error) {
+    return apiError(error);
+  }
+}
 export async function DELETE(req: Request) {
   try {
     assertOrigin(req);

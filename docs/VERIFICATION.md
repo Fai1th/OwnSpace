@@ -1,6 +1,17 @@
 # Verification ledger
 
-Verified October 13, 2026, approximately 3:19 AM America/Chicago.
+Verified October 13, 2026, approximately 7:00 AM America/Chicago.
+
+## Overnight audit: October 13, approximately 7:00 AM Central
+
+- Reproduced and fixed Premium appearing Free when a paid account had no page. Account entitlements now come from purchases independently of page existence; deleting a page retains the account upgrade.
+- Checkout returns now use bounded authenticated status checks, then offer a manual retry if confirmation is still pending. The check reads a small private account response and does not replace the draft or its concurrency version.
+- Reproduced an older save response undoing a newer verified payment confirmation. Save/publish responses now preserve entitlement observations made since their requests began.
+- Added real embedded-Postgres account-boundary tests and React editor tests for paid accounts without pages, delayed confirmation, retry limits, draft preservation and stale save responses.
+- **53 unit/component/database tests passed** across 15 files. TypeScript, formatting and compiled preview build passed.
+- **8 focused compiled-server browser checks passed** at desktop/mobile sizes, covering checkout-return spoofing, editing/save/reload, API boundaries and accessibility.
+- Payment polling is disabled in the keyless demo. A checkout-return query alone never grants Premium; account status requires authentication.
+- Only .env.example is present. Provider responses in component tests are local fixtures; live Clerk, Stripe, Composio and hosted-database checks remain dependent on configuration.
 
 ## Overnight audit: October 13, approximately 5:45 AM Central
 
@@ -33,7 +44,7 @@ Verified October 13, 2026, approximately 3:19 AM America/Chicago.
 - Focused compiled-server browser checks: **6 passed**, covering editing/save/reload, consent choices, and unauthenticated/cross-origin boundaries at desktop and mobile sizes.
 - No live provider verification was performed; credentials and provider dashboard setup remain outstanding.
 
-## Final local results
+## Initial build results
 
 - TypeScript: passed.
 - Unit and real embedded-Postgres integration tests: **28 passed** across 8 test files.

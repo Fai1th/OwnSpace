@@ -19,7 +19,18 @@ export const siteConfig = {
   gaId: process.env.NEXT_PUBLIC_GA_ID || "",
   metaPixel: process.env.NEXT_PUBLIC_META_PIXEL_ID || "",
   termsDate: process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE || "2026-10-13",
+  paymentPollDelayMs: publicInteger(
+    process.env.NEXT_PUBLIC_PAYMENT_POLL_DELAY_MS,
+    2500,
+    1000,
+    10000,
+  ),
+  paymentPollAttempts: publicInteger(process.env.NEXT_PUBLIC_PAYMENT_POLL_ATTEMPTS, 10, 1, 20),
 };
+function publicInteger(value: string | undefined, fallback: number, min: number, max: number) {
+  const n = Number(value);
+  return value && Number.isInteger(n) ? Math.min(max, Math.max(min, n)) : fallback;
+}
 export function getSiteUrl() {
   const url = new URL(siteConfig.url);
   if (

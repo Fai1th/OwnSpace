@@ -1,4 +1,17 @@
 import { test, expect } from "@playwright/test";
+test("a checkout return URL cannot unlock Premium in the local preview", async ({ page }) => {
+  const statusRequests: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/account") statusRequests.push(request.url());
+  });
+  await page.goto("/studio?purchase=complete");
+  await page.getByRole("button", { name: "Reject optional" }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "A little more room to be you." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Premium is yours." })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Unlock Premium" })).toBeDisabled();
+  expect(statusRequests).toEqual([]);
+});
 test("Global Privacy Control overrides an earlier optional consent", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(

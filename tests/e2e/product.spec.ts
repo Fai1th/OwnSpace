@@ -75,7 +75,7 @@ test("consent can be reopened and changed without accepting marketing", async ({
   expect(c.analytics).toBe(false);
 });
 test("account mutations fail closed without credentials", async ({ request }) => {
-  for (const endpoint of ["/api/profile", "/api/export", "/api/github"]) {
+  for (const endpoint of ["/api/profile", "/api/export", "/api/github", "/api/account"]) {
     const r = await request.get(endpoint);
     expect(r.status()).toBe(503);
   }

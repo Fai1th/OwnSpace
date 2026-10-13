@@ -52,7 +52,7 @@ Webhook URL: `/api/webhooks/stripe`. Subscribe to:
 - `charge.dispute.created`
 - `charge.dispute.closed`
 
-Entitlement is granted only by a verified webhook, never by the success URL. Events are idempotent; refund tombstones prevent late completion from re-granting refunded purchases. Full refunds revoke an upgrade. Pending disputes suspend the disputed purchase; a won or closed inquiry restores it, while a lost dispute keeps it revoked. Settled dispute results survive late opening or checkout events. Page deletion keeps the purchase on the account; account deletion removes the association. Keep Stripe financial retention and refund policies aligned with applicable law.
+Entitlement is granted only by a verified webhook, never by the success URL. After returning from checkout, the editor makes bounded, lightweight status checks and offers a manual check for delayed payments. These checks never overwrite draft content or refresh its concurrency version. Premium is read from the account’s purchases even when its page has been deleted. Events are idempotent; refund tombstones prevent late completion from re-granting refunded purchases. Full refunds revoke an upgrade. Pending disputes suspend the disputed purchase; a won or closed inquiry restores it, while a lost dispute keeps it revoked. Settled dispute results survive late opening or checkout events. Page deletion keeps the purchase on the account; account deletion removes the association. Keep Stripe financial retention and refund policies aligned with applicable law.
 
 The current integration does not automatically collect sales tax. Configure registrations and the correct tax treatment before selling in jurisdictions requiring collection. No tax-compliance claim is made by this code.
 

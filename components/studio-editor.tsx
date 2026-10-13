@@ -63,6 +63,19 @@ export function StudioEditor({ demo }: { demo: boolean }) {
 function Editor({ demo }: { demo: boolean }) {
   const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [record, setRecord] = useState<ProfileRecord | null>(null);
+  const [accountEntitlement, setAccountEntitlement] = useState("free");
+  const entitlementRevision = useRef(0),
+    verifiedEntitlement = useRef("free");
+  function observeEntitlement(status: string, expectedRevision?: number) {
+    if (expectedRevision !== undefined && expectedRevision !== entitlementRevision.current)
+      return verifiedEntitlement.current;
+    verifiedEntitlement.current = status;
+    entitlementRevision.current++;
+    setAccountEntitlement(status);
+    return status;
+  }
+  const [paymentPending, setPaymentPending] = useState(false);
+  const [paymentChecking, setPaymentChecking] = useState(false);
   const [panel, setPanel] = useState<Panel>("about");
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -79,7 +92,7 @@ function Editor({ demo }: { demo: boolean }) {
   const [deleteText, setDeleteText] = useState("");
   const baseline = useRef("");
   const dialog = useRef<HTMLDialogElement>(null);
-  const premium = record?.entitlement === "paid";
+  const premium = accountEntitlement === "paid";
   useEffect(() => {
     let live = true;
     (async () => {
@@ -90,12 +103,17 @@ function Editor({ demo }: { demo: boolean }) {
           setPanel("connections");
           if (!demo) void loadGithub();
         }
-        if (query.has("purchase"))
+        if (query.has("purchase")) {
+          const complete = query.get("purchase") === "complete";
+          setPaymentPending(complete && !demo);
           setMessage(
-            query.get("purchase") === "complete"
-              ? "Your purchase is being confirmed. Premium appears after payment verification."
-              : "Checkout cancelled. Your page is still here.",
+            demo
+              ? "Purchases are unavailable in this preview."
+              : complete
+                ? "Your purchase is being confirmed. Premium appears after payment verification."
+                : "Checkout cancelled. Your page is still here.",
           );
+        }
         let initial = { ...emptyProfile };
         if (query.get("handle")) initial.handle = normalizeHandle(query.get("handle")!);
         if (themes.some((t) => t.id === query.get("template")))
@@ -112,6 +130,7 @@ function Editor({ demo }: { demo: boolean }) {
           const r = await fetch("/api/profile", { cache: "no-store" });
           const data = await r.json();
           if (!r.ok) throw Error(data.error);
+          if (live) observeEntitlement(data.entitlement || data.profile?.entitlement || "free");
           if (data.profile) {
             initial = data.profile.draft;
             if (live) setRecord(data.profile);
@@ -191,6 +210,7 @@ function Editor({ demo }: { demo: boolean }) {
     setMessage("");
     try {
       const submitted = profile;
+      const submittedEntitlementRevision = entitlementRevision.current;
       const parsed = profileSchema.safeParse(submitted);
       if (!parsed.success) throw Error(parsed.error.issues[0].message);
       if (demo) {
@@ -206,6 +226,7 @@ function Editor({ demo }: { demo: boolean }) {
         version: record?.version || 0,
       });
       setRecord(data.profile);
+      observeEntitlement(data.profile.entitlement, submittedEntitlementRevision);
       baseline.current = JSON.stringify(data.profile.draft);
       setProfile((current) => reconcileSavedDraft(submitted, current, data.profile.draft));
       setMessage("Your submitted draft is saved.");
@@ -225,9 +246,11 @@ function Editor({ demo }: { demo: boolean }) {
     const saved = await save();
     if (!saved) return;
     setBusy(true);
+    const publishedEntitlementRevision = entitlementRevision.current;
     try {
       const data = await request("/api/publish", "POST", { publish: true, version: saved.version });
       setRecord(data.profile);
+      observeEntitlement(data.profile.entitlement, publishedEntitlementRevision);
       setMessage("Your space is live. Share /" + data.profile.handle + " with the world.");
     } catch (e) {
       setError((e as Error).message);
@@ -235,6 +258,78 @@ function Editor({ demo }: { demo: boolean }) {
       setBusy(false);
     }
   }
+  function paymentMessage(status: string) {
+    if (status === "paid") {
+      setPaymentPending(false);
+      setMessage("Premium is confirmed. Your extra customization tools are ready.");
+      return true;
+    }
+    if (["refunded", "disputed", "dispute_lost"].includes(status)) {
+      setPaymentPending(false);
+      setMessage(
+        status === "disputed"
+          ? "This purchase is suspended while its payment dispute is open."
+          : "This upgrade is not active. Contact support if you need help with the payment.",
+      );
+      return true;
+    }
+    return false;
+  }
+  async function checkPayment() {
+    setPaymentChecking(true);
+    setError("");
+    const expectedEntitlementRevision = entitlementRevision.current;
+    try {
+      const data = await request("/api/account", "GET");
+      const status = observeEntitlement(data.entitlement || "free", expectedEntitlementRevision);
+      if (!paymentMessage(status))
+        setMessage("Payment is still being confirmed. Your draft is safe; check again shortly.");
+    } catch (error) {
+      setError((error as Error).message);
+    } finally {
+      setPaymentChecking(false);
+    }
+  }
+  useEffect(() => {
+    if (!ready || demo || new URLSearchParams(location.search).get("purchase") !== "complete")
+      return;
+    let active = true,
+      timer: ReturnType<typeof setTimeout> | undefined;
+    const controller = new AbortController();
+    const check = async (attempt: number) => {
+      if (!active) return;
+      setPaymentChecking(true);
+      const expectedEntitlementRevision = entitlementRevision.current;
+      try {
+        const r = await fetch("/api/account", { cache: "no-store", signal: controller.signal });
+        const data = await r.json();
+        if (!r.ok) throw Error(data.error || "Payment status could not be checked.");
+        if (!active) return;
+        const status = observeEntitlement(data.entitlement || "free", expectedEntitlementRevision);
+        if (paymentMessage(status)) {
+          setPaymentChecking(false);
+          return;
+        }
+        if (attempt < siteConfig.paymentPollAttempts) {
+          timer = setTimeout(() => void check(attempt + 1), siteConfig.paymentPollDelayMs);
+          return;
+        }
+        setMessage(
+          "Payment is still being confirmed. Your draft is safe; you can check again later.",
+        );
+      } catch (error) {
+        if (!active) return;
+        setError((error as Error).message);
+      }
+      if (active) setPaymentChecking(false);
+    };
+    void check(1);
+    return () => {
+      active = false;
+      if (timer) clearTimeout(timer);
+      controller.abort();
+    };
+  }, [ready, demo]);
   async function image(file: File | undefined, key: "avatar" | "background", cardId?: string) {
     if (!file) return;
     setError("");
@@ -394,6 +489,15 @@ function Editor({ demo }: { demo: boolean }) {
                 </div>
               )}
             </div>
+          )}
+          {paymentPending && !premium && (
+            <button
+              className="button secondary small"
+              disabled={paymentChecking}
+              onClick={() => void checkPayment()}
+            >
+              {paymentChecking ? "Checking payment…" : "Check payment status"}
+            </button>
           )}
           <div className="studio-heading">
             <span className="eyebrow">
@@ -836,7 +940,7 @@ function Editor({ demo }: { demo: boolean }) {
                 {!premium && (
                   <button
                     className="button small"
-                    disabled={busy || demo}
+                    disabled={busy || demo || paymentPending}
                     onClick={() =>
                       void action(async () => {
                         if (dirty || !record) throw Error("Save your page before upgrading.");

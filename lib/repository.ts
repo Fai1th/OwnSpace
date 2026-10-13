@@ -39,6 +39,18 @@ export class Repository {
     const r = await this.db.query("SELECT * FROM profiles WHERE owner=$1", [owner]);
     return r.rows[0] ? record(r.rows[0]) : null;
   }
+  async entitlement(owner: string) {
+    const active = await this.db.query(
+      "SELECT payment_id FROM purchases WHERE owner=$1 AND status IN ('paid','dispute_won') LIMIT 1",
+      [owner],
+    );
+    if (active.rows.length) return "paid";
+    const latest = await this.db.query(
+      "SELECT status FROM purchases WHERE owner=$1 ORDER BY created_at DESC LIMIT 1",
+      [owner],
+    );
+    return latest.rows[0] ? String(latest.rows[0].status) : "free";
+  }
   async publicProfile(handle: string) {
     const r = await this.db.query(
       "SELECT published,entitlement FROM profiles WHERE published->>'handle'=$1",
