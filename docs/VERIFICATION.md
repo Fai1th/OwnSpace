@@ -2,6 +2,16 @@
 
 Verified October 13, 2026, approximately 3:19 AM America/Chicago.
 
+## Overnight audit: October 13, approximately 3:30 AM Central
+
+- Fixed a reproducible billing bug: pending payment disputes were incorrectly treated as permanent refunds, and won disputes never restored Premium.
+- Added signed local Stripe webhook fixtures backed by real embedded Postgres. These exercise signature verification and state updates without contacting Stripe or using production credentials.
+- Pending disputes now remain suspended through late checkout events. Won/closed inquiries restore the purchase; lost disputes remain revoked. Settled results survive late opening events, and actual full refunds cannot be undone by a dispute closure.
+- Enabled handling for `charge.dispute.closed`; README now includes that event in Stripe dashboard setup.
+- Full local suite: **33 tests passed** across 9 files. TypeScript and compiled preview build passed.
+- Focused compiled-server browser checks: **6 passed**, covering editing/save/reload, consent choices, and unauthenticated/cross-origin boundaries at desktop and mobile sizes.
+- No live provider verification was performed; credentials and provider dashboard setup remain outstanding.
+
 ## Final local results
 
 - TypeScript: passed.

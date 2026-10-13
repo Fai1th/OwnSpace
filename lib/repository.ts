@@ -59,7 +59,7 @@ export class Repository {
         if ((previous?.version || 0) !== version)
           throw new Error("Your page changed in another tab. Reload before saving.");
         const purchase = await tx.query(
-          "SELECT status FROM purchases WHERE owner=$1 AND status='paid' LIMIT 1",
+          "SELECT status FROM purchases WHERE owner=$1 AND status IN ('paid','dispute_won') LIMIT 1",
           [owner],
         );
         const entitlement = purchase.rows.length ? "paid" : previous?.entitlement || "free";
@@ -122,7 +122,7 @@ export class Repository {
     eventId: string;
     owner?: string;
     paymentId: string;
-    status: "paid" | "refunded" | "disputed";
+    status: "paid" | "refunded" | "disputed" | "dispute_won" | "dispute_lost";
   }) {
     await this.db.transaction(async (tx) => {
       const inserted = await tx.query(
@@ -131,7 +131,7 @@ export class Repository {
       );
       if (!inserted.rows.length) return;
       await tx.query(
-        "INSERT INTO purchases(payment_id,owner,status) VALUES($1,$2,$3) ON CONFLICT(payment_id) DO UPDATE SET owner=CASE WHEN purchases.owner='pending' THEN EXCLUDED.owner ELSE purchases.owner END,status=CASE WHEN purchases.status='refunded' THEN 'refunded' ELSE EXCLUDED.status END",
+        "INSERT INTO purchases(payment_id,owner,status) VALUES($1,$2,$3) ON CONFLICT(payment_id) DO UPDATE SET owner=CASE WHEN purchases.owner='pending' THEN EXCLUDED.owner ELSE purchases.owner END,status=CASE WHEN purchases.status='refunded' OR EXCLUDED.status='refunded' THEN 'refunded' WHEN EXCLUDED.status IN ('dispute_won','dispute_lost') THEN EXCLUDED.status WHEN purchases.status IN ('dispute_won','dispute_lost') THEN purchases.status WHEN purchases.status='disputed' AND EXCLUDED.status='paid' THEN 'disputed' ELSE EXCLUDED.status END",
         [event.paymentId, event.owner || "pending", event.status],
       );
       const p = await tx.query("SELECT owner,status FROM purchases WHERE payment_id=$1", [
@@ -140,7 +140,7 @@ export class Repository {
       const owner = p.rows[0]?.owner;
       if (!owner || owner === "pending" || owner === "deleted") return;
       const active = await tx.query(
-        "SELECT payment_id FROM purchases WHERE owner=$1 AND status='paid' LIMIT 1",
+        "SELECT payment_id FROM purchases WHERE owner=$1 AND status IN ('paid','dispute_won') LIMIT 1",
         [owner],
       );
       await tx.query("UPDATE profiles SET entitlement=$2 WHERE owner=$1", [

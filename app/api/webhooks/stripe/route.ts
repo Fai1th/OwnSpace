@@ -59,13 +59,23 @@ export async function POST(req: Request) {
             : charge.payment_intent?.id;
         if (pi) await repo.billing({ eventId: event.id, paymentId: pi, status: "refunded" });
       }
-    } else if (event.type === "charge.dispute.created") {
+    } else if (event.type === "charge.dispute.created" || event.type === "charge.dispute.closed") {
       const dispute = event.data.object as Stripe.Dispute;
       const pi =
         typeof dispute.payment_intent === "string"
           ? dispute.payment_intent
           : dispute.payment_intent?.id;
-      if (pi) await repo.billing({ eventId: event.id, paymentId: pi, status: "refunded" });
+      if (pi) {
+        const status =
+          event.type === "charge.dispute.created"
+            ? "disputed"
+            : dispute.status === "won" || dispute.status === "warning_closed"
+              ? "dispute_won"
+              : dispute.status === "lost"
+                ? "dispute_lost"
+                : null;
+        if (status) await repo.billing({ eventId: event.id, paymentId: pi, status });
+      }
     }
     return json({ received: true });
   } catch (e) {
