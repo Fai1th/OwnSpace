@@ -1,0 +1,53 @@
+{
+  "name": "ownspace",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev --webpack --hostname 127.0.0.1",
+    "build": "tsx scripts/validate-deployment.ts && next build --webpack",
+    "start": "tsx scripts/validate-deployment.ts && next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run typecheck && npm test && npm run build:preview",
+    "setup": "tsx scripts/setup.ts",
+    "format": "prettier --write app components lib scripts tests docs *.ts *.json",
+    "format:check": "prettier --check app components lib scripts tests docs *.ts *.json",
+    "build:preview": "tsx scripts/preview.ts build",
+    "start:preview": "tsx scripts/preview.ts start",
+    "moderate": "tsx scripts/moderate.ts"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "3.37.0",
+    "@clerk/nextjs": "7.9.14",
+    "@composio/core": "0.23.0",
+    "@electric-sql/pglite": "latest",
+    "@emotion/react": "^11.14.0",
+    "@fontsource-variable/manrope": "latest",
+    "@phosphor-icons/react": "^2.1.10",
+    "@saas-ui/chakra-preset": "latest",
+    "motion": "^12.0.0",
+    "next": "16.4.0",
+    "pg": "^8.16.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "stripe": "latest",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "latest",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  },
+  "type": "module"
+}

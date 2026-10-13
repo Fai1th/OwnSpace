@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.ownspace-data/
+work/
+playwright-report/
+test-results/
+*.tsbuildinfo
