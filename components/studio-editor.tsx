@@ -42,7 +42,7 @@ import {
 } from "@/lib/profile";
 import { siteConfig } from "@/lib/config";
 import { optimizeImage } from "@/lib/image-upload";
-import { readDraft } from "@/lib/draft";
+import { readDraft, reconcileSavedDraft } from "@/lib/draft";
 type Panel = "about" | "links" | "appearance" | "images" | "connections" | "settings";
 const panels: { id: Panel; name: string; icon: typeof UserIcon }[] = [
   { id: "about", name: "Your profile", icon: UserIcon },
@@ -156,7 +156,7 @@ function Editor({ demo }: { demo: boolean }) {
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [profile, ready, demo]);
+  }, [profile, ready, demo, record?.version]);
   useEffect(() => {
     const before = (e: BeforeUnloadEvent) => {
       if (dirty && !demo) {
@@ -190,7 +190,8 @@ function Editor({ demo }: { demo: boolean }) {
     setError("");
     setMessage("");
     try {
-      const parsed = profileSchema.safeParse(profile);
+      const submitted = profile;
+      const parsed = profileSchema.safeParse(submitted);
       if (!parsed.success) throw Error(parsed.error.issues[0].message);
       if (demo) {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(parsed.data));
@@ -205,10 +206,9 @@ function Editor({ demo }: { demo: boolean }) {
         version: record?.version || 0,
       });
       setRecord(data.profile);
-      setProfile(data.profile.draft);
       baseline.current = JSON.stringify(data.profile.draft);
-      setDirty(false);
-      setMessage("Your draft is saved.");
+      setProfile((current) => reconcileSavedDraft(submitted, current, data.profile.draft));
+      setMessage("Your submitted draft is saved.");
       return data.profile as ProfileRecord;
     } catch (e) {
       setError((e as Error).message);

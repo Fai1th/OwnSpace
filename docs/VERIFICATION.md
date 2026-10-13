@@ -2,6 +2,16 @@
 
 Verified October 13, 2026, approximately 3:19 AM America/Chicago.
 
+## Overnight audit: October 13, approximately 5:45 AM Central
+
+- Reproduced editor data loss through the real React component with a delayed local save response: text typed after Save was clicked was overwritten by the response.
+- Save completion now reconciles fields against the submitted snapshot. Later edits remain in the editor and are marked unsaved; server normalization and free-plan restrictions still apply to untouched fields. The saved version advances so the next request can use the correct concurrency token.
+- Reproduced paid-upgrade loss when Clerk account deletion failed. Purchase ownership is now retained until Clerk deletion succeeds or the provider confirms the account is already gone. Account-deletion retries remain idempotent.
+- Added test-only DOM tools for these component checks. Clerk/provider UI and API responses are mocked only at external boundaries; no authentication bypass or test route was added to the product.
+- **46 unit/component/database tests passed** across 13 files. TypeScript, formatting and compiled preview build passed.
+- **8 focused compiled-server browser checks passed** at desktop/mobile sizes, covering editing/save/reload, incomplete drafts, API boundaries and accessibility.
+- Only .env.example is present. Live Clerk, Stripe, Composio and hosted-database checks remain dependent on configuration; no production credentials were used.
+
 ## Overnight audit: October 13, approximately 4:40 AM Central
 
 - Reproduced and fixed cookie choices being forgotten after reload when localStorage is unavailable. The existing first-party consent cookie is now a safe fallback.

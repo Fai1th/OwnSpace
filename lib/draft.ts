@@ -7,6 +7,14 @@ const draftSchema = profileSchema.extend({
     .array(linkSchema.extend({ title: z.string().max(80), url: z.string().max(2048) }))
     .max(20),
 });
+export function reconcileSavedDraft(submitted: Profile, current: Profile, saved: Profile): Profile {
+  return Object.fromEntries(
+    (Object.keys(saved) as (keyof Profile)[]).map((key) => [
+      key,
+      JSON.stringify(current[key]) === JSON.stringify(submitted[key]) ? saved[key] : current[key],
+    ]),
+  ) as Profile;
+}
 export function readDraft(raw: string | null): Profile | null {
   try {
     if (!raw) return null;
