@@ -30,6 +30,33 @@ export function readConsent(raw: string | null, now = Date.now()): Consent | nul
     return null;
   }
 }
+export function readSavedConsent(
+  storage: Pick<Storage, "getItem"> | null,
+  cookieHeader: string,
+  now = Date.now(),
+): Consent | null {
+  let local: Consent | null = null,
+    cookie: Consent | null = null;
+  try {
+    local = readConsent(storage?.getItem(CONSENT_KEY) || null, now);
+  } catch {}
+  try {
+    const part = cookieHeader
+      .split(";")
+      .map((p) => p.trim())
+      .find((p) => p.startsWith(CONSENT_KEY + "="));
+    if (part) cookie = readConsent(decodeURIComponent(part.slice(CONSENT_KEY.length + 1)), now);
+  } catch {}
+  if (!local) return cookie;
+  if (!cookie) return local;
+  if (local.updatedAt === cookie.updatedAt)
+    return {
+      ...local,
+      analytics: local.analytics && cookie.analytics,
+      marketing: local.marketing && cookie.marketing,
+    };
+  return local.updatedAt > cookie.updatedAt ? local : cookie;
+}
 export function allowsTracking(
   c: Consent | null,
   category: "analytics" | "marketing",

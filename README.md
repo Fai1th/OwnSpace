@@ -62,7 +62,7 @@ Set `COMPOSIO_API_KEY` and `COMPOSIO_GITHUB_AUTH_CONFIG_ID`. Create a GitHub OAu
 The user chooses which repositories become links. Importing never publishes automatically. Disconnection and deletion revoke the Composio connection before forgetting its identifier. Configure and test provider OAuth callbacks before launch.
 
 ## Privacy and legal configuration
-Analytics and marketing are opt-in, independently selectable, with equally accessible acceptance and rejection. Cookie preferences can be reopened from any marketing footer or account Settings. GPC keeps optional tracking off. No tracking integration is enabled unless its ID is configured.
+Analytics and marketing are opt-in, independently selectable, with equally accessible acceptance and rejection. Cookie preferences can be reopened from any marketing footer or account Settings. Choices survive blocked localStorage using the first-party cookie and synchronize between open tabs; focus/visibility checks provide a fallback when cross-tab messaging is unavailable. GPC keeps optional tracking off. No tracking integration is enabled unless its ID is configured.
 
 If configured, Google Analytics and Meta Pixel are loaded only after the corresponding consent. Withdrawal disables the integration and removes accessible first-party cookies. Previously sent provider data cannot be removed simply by deleting local cookies.
 

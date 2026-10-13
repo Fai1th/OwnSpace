@@ -2,6 +2,17 @@
 
 Verified October 13, 2026, approximately 3:19 AM America/Chicago.
 
+## Overnight audit: October 13, approximately 4:40 AM Central
+
+- Reproduced and fixed cookie choices being forgotten after reload when localStorage is unavailable. The existing first-party consent cookie is now a safe fallback.
+- When cookie and localStorage choices differ, the newest valid choice wins; an equal-timestamp disagreement is resolved conservatively toward rejection. Invalid and expired choices remain rejected.
+- Reproduced and fixed withdrawal in one tab leaving another tab on its old choices. Storage/BroadcastChannel updates now reapply consent, with focus/visibility fallback and proper listener cleanup.
+- Synchronization does not overwrite unsaved checkbox edits when no stored choice changed. An additional browser regression test exposed and verified this case.
+- Profile view tracking uses the same stored-choice resolution as the banner. Repeated identical synchronization does not reinitialize tracking scripts.
+- **38 unit/database tests passed** across 10 files; TypeScript, formatting and the compiled preview build passed.
+- **24 compiled-server browser checks passed** at desktop/mobile sizes, including consent persistence, cross-tab withdrawal, unsaved edits, GPC, editor/save/preview, authentication boundaries, accessibility and responsive pages.
+- Optional third-party trackers were not configured during these browser checks; no live provider credentials or accounts were accessed. Their live-service checks remain dependent on user configuration.
+
 ## Overnight audit: October 13, approximately 3:30 AM Central
 
 - Fixed a reproducible billing bug: pending payment disputes were incorrectly treated as permanent refunds, and won disputes never restored Premium.

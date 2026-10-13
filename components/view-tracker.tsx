@@ -1,16 +1,15 @@
 "use client";
 import { useEffect } from "react";
-import { readConsent, allowsTracking, CONSENT_KEY } from "@/lib/consent";
+import { allowsTracking } from "@/lib/consent";
+import { getStoredConsent } from "@/lib/browser-consent";
 export function ViewTracker({ handle }: { handle: string }) {
   useEffect(() => {
     let sent = false;
     function track() {
       if (sent) return;
-      let raw = null;
-      try {
-        raw = localStorage.getItem(CONSENT_KEY);
-      } catch {}
-      if (allowsTracking(readConsent(raw), "analytics", Boolean(navigator.globalPrivacyControl))) {
+      if (
+        allowsTracking(getStoredConsent(), "analytics", Boolean(navigator.globalPrivacyControl))
+      ) {
         sent = true;
         void fetch("/api/events", {
           method: "POST",

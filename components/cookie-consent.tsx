@@ -1,16 +1,10 @@
 "use client";
 import { createPixelDispatcher } from "@/lib/pixel";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { getStoredConsent, persistConsent } from "@/lib/browser-consent";
 import Link from "next/link";
 import { XIcon } from "@phosphor-icons/react";
-import {
-  CONSENT_KEY,
-  CONSENT_MAX_AGE,
-  readConsent,
-  makeConsent,
-  allowsTracking,
-  type Consent,
-} from "@/lib/consent";
+import { CONSENT_KEY, readConsent, makeConsent, allowsTracking, type Consent } from "@/lib/consent";
 import { siteConfig } from "@/lib/config";
 declare global {
   interface Window {
@@ -29,35 +23,76 @@ export function CookieConsent({ gpcHeader = false }: { gpcHeader?: boolean }) {
     [analytics, setAnalytics] = useState(false),
     [marketing, setMarketing] = useState(false),
     [gpc, setGpc] = useState(false);
+  const channel = useRef<BroadcastChannel | null>(null);
+  const preferencesOpen = useRef(false);
+  const lastApplied = useRef<string | undefined>(undefined);
   useEffect(() => {
     const g = gpcHeader || Boolean(navigator.globalPrivacyControl);
     setGpc(g);
-    let consent: Consent | null = null;
-    try {
-      consent = readConsent(localStorage.getItem(CONSENT_KEY));
-    } catch {}
-    if (g && consent && (consent.analytics || consent.marketing)) {
-      consent = makeConsent(false, false);
-      persist(consent);
-    }
-    setAnalytics(Boolean(consent?.analytics && !g));
-    setMarketing(Boolean(consent?.marketing && !g));
-    setOpen(!consent);
-    applyTracking(consent, g);
+    const applyChoice = (input: Consent | null) => {
+      let consent = input;
+      if (g && consent && (consent.analytics || consent.marketing)) {
+        consent = makeConsent(false, false);
+        persistConsent(consent);
+      }
+      const serialized = JSON.stringify(consent);
+      if (serialized === lastApplied.current) return;
+      lastApplied.current = serialized;
+      setAnalytics(Boolean(consent?.analytics && !g));
+      setMarketing(Boolean(consent?.marketing && !g));
+      if (!consent) setOpen(true);
+      else if (!preferencesOpen.current) setOpen(false);
+      applyTracking(consent, g);
+      window.dispatchEvent(new CustomEvent("ownspace-consent-changed", { detail: consent }));
+    };
+    const sync = () => applyChoice(getStoredConsent());
+    sync();
+    const storage = (event: StorageEvent) => {
+      if (event.key === CONSENT_KEY || event.key === null) sync();
+    };
+    const visible = () => {
+      if (document.visibilityState === "visible") sync();
+    };
     const reopen = () => {
+      preferencesOpen.current = true;
       setDetails(true);
       setOpen(true);
     };
+    try {
+      channel.current = new BroadcastChannel(CONSENT_KEY + "-updates");
+      channel.current.onmessage = (event) => {
+        const consent = readConsent(JSON.stringify(event.data));
+        if (consent) {
+          const saved = getStoredConsent();
+          applyChoice(saved && saved.updatedAt >= consent.updatedAt ? saved : consent);
+        }
+      };
+    } catch {}
+    window.addEventListener("storage", storage);
+    window.addEventListener("focus", sync);
+    document.addEventListener("visibilitychange", visible);
     window.addEventListener("ownspace-cookie-settings", reopen);
-    return () => window.removeEventListener("ownspace-cookie-settings", reopen);
+    return () => {
+      channel.current?.close();
+      channel.current = null;
+      window.removeEventListener("storage", storage);
+      window.removeEventListener("focus", sync);
+      document.removeEventListener("visibilitychange", visible);
+      window.removeEventListener("ownspace-cookie-settings", reopen);
+    };
   }, [gpcHeader]);
   function choose(a: boolean, m: boolean) {
     const consent = makeConsent(a && !gpc, m && !gpc);
-    persist(consent);
+    persistConsent(consent);
+    lastApplied.current = JSON.stringify(consent);
     setAnalytics(consent.analytics);
     setMarketing(consent.marketing);
     applyTracking(consent, gpc);
     window.dispatchEvent(new CustomEvent("ownspace-consent-changed", { detail: consent }));
+    preferencesOpen.current = false;
+    try {
+      channel.current?.postMessage(consent);
+    } catch {}
     setOpen(false);
     setDetails(false);
   }
@@ -113,7 +148,13 @@ export function CookieConsent({ gpcHeader = false }: { gpcHeader?: boolean }) {
             Save choices
           </button>
         ) : (
-          <button className="button secondary small" onClick={() => setDetails(true)}>
+          <button
+            className="button secondary small"
+            onClick={() => {
+              preferencesOpen.current = true;
+              setDetails(true);
+            }}
+          >
             Customize
           </button>
         )}
@@ -124,7 +165,10 @@ export function CookieConsent({ gpcHeader = false }: { gpcHeader?: boolean }) {
           <button
             className="icon-button"
             aria-label="Close cookie settings"
-            onClick={() => setDetails(false)}
+            onClick={() => {
+              preferencesOpen.current = false;
+              setDetails(false);
+            }}
           >
             <XIcon />
           </button>
@@ -132,19 +176,6 @@ export function CookieConsent({ gpcHeader = false }: { gpcHeader?: boolean }) {
       </div>
     </aside>
   );
-}
-function persist(c: Consent) {
-  try {
-    localStorage.setItem(CONSENT_KEY, JSON.stringify(c));
-  } catch {}
-  document.cookie =
-    CONSENT_KEY +
-    "=" +
-    encodeURIComponent(JSON.stringify(c)) +
-    "; Path=/; Max-Age=" +
-    Math.floor(CONSENT_MAX_AGE / 1000) +
-    "; SameSite=Lax" +
-    (location.protocol === "https:" ? "; Secure" : "");
 }
 function removeCookies(prefixes: string[]) {
   const host = location.hostname.split(".");
@@ -165,9 +196,13 @@ function script(id: string, src: string) {
   s.async = true;
   document.head.appendChild(s);
 }
+let previousTrackingChoice: string | undefined;
 function applyTracking(c: Consent | null, gpc: boolean) {
   const a = allowsTracking(c, "analytics", gpc),
     m = allowsTracking(c, "marketing", gpc);
+  const choice = JSON.stringify([siteConfig.gaId, siteConfig.metaPixel, a, m]);
+  if (previousTrackingChoice === choice) return;
+  previousTrackingChoice = choice;
   if (siteConfig.gaId && /^G-[A-Z0-9]+$/.test(siteConfig.gaId)) {
     (window as unknown as Record<string, unknown>)["ga-disable-" + siteConfig.gaId] = !a;
     window.dataLayer = window.dataLayer || [];
