@@ -3,6 +3,7 @@ node_modules/
 .next/
 .npm-cache/
 work/
+.work/
 test-results/
 playwright-report/
 .ownspace-data/

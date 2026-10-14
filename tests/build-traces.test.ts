@@ -139,3 +139,39 @@ it("refuses a different project, incomplete build or linked build directory", as
     await rm(linkedRoot, { recursive: true, force: true });
   }
 });
+it("ignores Vercel emitted function aliases and non-runtime build directories", async () => {
+  const file = await manifest("server/app/page.js.nft.json", {
+    version: 1,
+    files: ["../../../work/private.zip", "../../../components/site-canvas.tsx"],
+  });
+  const output = path.join(root, ".next/output/functions");
+  await mkdir(path.join(output, "index.func"), { recursive: true });
+  await writeFile(
+    path.join(output, "index.func/.vc-config.json"),
+    JSON.stringify({ filePathMap: { "components/site-canvas.tsx": "components/site-canvas.tsx" } }),
+  );
+  await symlink(path.join(output, "index.func"), path.join(output, "page.func"), "junction");
+  const ignored = await manifest("cache/unrelated.nft.json", { invalid: "not a runtime manifest" });
+  expect(await sanitizeBuildTraces(root)).toEqual({ manifests: 1, changed: 1, removed: 1 });
+  expect(JSON.parse(await readFile(file, "utf8")).files).toEqual([
+    "../../../components/site-canvas.tsx",
+  ]);
+  expect(JSON.parse(await readFile(ignored, "utf8"))).toEqual({
+    invalid: "not a runtime manifest",
+  });
+});
+it("rejects private already-emitted Vercel assets before rewriting any NFT metadata", async () => {
+  const file = await manifest("server/app/page.js.nft.json", {
+    version: 1,
+    files: ["../../../work/private.zip"],
+  });
+  const original = await readFile(file, "utf8");
+  const output = path.join(root, ".next/output/functions/index.func");
+  await mkdir(output, { recursive: true });
+  await writeFile(
+    path.join(output, ".vc-config.json"),
+    JSON.stringify({ filePathMap: { "data.zip": "work/private.zip" } }),
+  );
+  await expect(sanitizeBuildTraces(root)).rejects.toThrow(/private/i);
+  expect(await readFile(file, "utf8")).toBe(original);
+});

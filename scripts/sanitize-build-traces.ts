@@ -1,6 +1,7 @@
 import { lstat, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateVercelOutput } from "./validate-vercel-output";
 
 const PRIVATE_ROOTS = new Set([
   ".ownspace-data",
@@ -54,6 +55,10 @@ export async function sanitizeBuildTraces(projectRoot = process.cwd()) {
   const traces: string[] = [];
   async function collect(directory: string) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
+      // Vercel emits a separate output tree with legitimate .func aliases.
+      // NFT manifests live at the root and under server; cache/static/output are not inputs.
+      if (directory === build && entry.name !== "server" && !entry.name.endsWith(".nft.json"))
+        continue;
       const target = path.join(directory, entry.name);
       if (!inside(build, target)) throw new Error("Invalid generated trace path.");
       if (entry.isSymbolicLink()) throw new Error("Linked build artifacts cannot be sanitized.");
@@ -109,6 +114,9 @@ export async function sanitizeBuildTraces(projectRoot = process.cwd()) {
     }
     changes.push({ file, content: JSON.stringify(trace) });
   }
+  // The adapter may have already materialized file maps during onBuildComplete.
+  // Validate them separately; changing NFT metadata cannot repair emitted payloads.
+  await validateVercelOutput(root);
   for (const change of changes) {
     await regular(change.file);
     if (!inside(build, await realpath(change.file)))
