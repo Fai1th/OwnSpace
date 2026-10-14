@@ -85,7 +85,7 @@ try {
     await page.mouse.down();
     await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 25 });
     await page.waitForTimeout(350);
-    if (type === "Text") {
+    if (type === "Text" && (await destination.getAttribute("data-puck-dropzone")) !== null) {
       const liveTarget = await destination.boundingBox();
       await page.mouse.move(
         liveTarget.x + liveTarget.width / 2,
@@ -147,11 +147,13 @@ try {
   await expect(page.getByRole("textbox", { name: "Heading", exact: true })).toHaveValue(
     "Built in the visual editor",
   );
-  await dragBlock("Section", canvas.locator(".website-surface"));
-  await expect(canvas.locator(".website-section")).toHaveCount(1);
-  await fs.writeFile("work/puck-section-dom.html", await canvas.locator("body").innerHTML());
-  await dragBlock("Text", canvas.locator(".website-section-content"));
-  await expect(canvas.locator(".website-section .website-text")).toHaveCount(1);
+  await expect(page.getByTestId("drawer-item:Section")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Download React source" })).toBeDisabled();
+  await page.getByRole("button", { name: /Element library/ }).click();
+  await expect(page.getByRole("button", { name: "Premium required", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Close library" }).click();
+  await dragBlock("Text", canvas.locator(".website-surface"));
+  await expect(canvas.locator(".website-text")).toHaveCount(1);
   await page.goBack();
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.getByRole("link", { name: /Open visual editor/ }).click();
@@ -164,8 +166,7 @@ try {
     visualSaved.profile.draft.website.content.find((block) => block.type === "Heading").props.text,
   ).toBe("Built in the visual editor");
   expect(
-    visualSaved.profile.draft.website.content.find((block) => block.type === "Section").props
-      .content,
+    visualSaved.profile.draft.website.content.filter((block) => block.type === "Text"),
   ).toHaveLength(1);
   await page.reload();
   await expect(canvas.locator(".website-heading")).toHaveText("Built in the visual editor");
@@ -208,12 +209,12 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole("button", { name: "Preview", exact: true }).click();
-  await expect(page.locator("dialog")).toBeVisible();
+  await expect(page.locator(".website-editor-preview")).toBeVisible();
   await page.screenshot({ path: "work/website-editor-mobile-preview.png", fullPage: true });
   await page.getByRole("button", { name: "Close preview", exact: true }).click();
   await page.setViewportSize({ width: 1440, height: 1000 });
   results.push(
-    "Real Puck drag/nesting, property edit, undo/redo, Back recovery, save/reload, mobile preview, publish/unpublish",
+    "Real Free locks, Puck drag, property edit, undo/redo, Back recovery, save/reload, mobile preview, publish/unpublish",
   );
   await page.goto(base + "/studio", { waitUntil: "domcontentloaded" });
   await page.locator(".cl-userButtonTrigger").click();

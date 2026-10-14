@@ -13,7 +13,7 @@ export async function optimizeImage(file: File, avatar = false): Promise<string>
     bitmap.close();
     throw Error("Your browser couldn't open that image.");
   }
-  ctx.fillStyle = "#202955";
+  ctx.fillStyle = "#202020";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();

@@ -7,7 +7,7 @@ export function Footer() {
     <footer className={`site-footer ${styles.footer}`}>
       <div className="footer-brand">
         <Logo />
-        <p>A little space. All yours.</p>
+        <p>A website you can make your own.</p>
       </div>
       <nav aria-label="Footer navigation">
         <Link href="/pricing">Pricing</Link>

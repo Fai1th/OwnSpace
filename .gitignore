@@ -4,6 +4,7 @@ node_modules/
 !.env.example
 .ownspace-data/
 work/
+.work/
 playwright-report/
 test-results/
 *.tsbuildinfo

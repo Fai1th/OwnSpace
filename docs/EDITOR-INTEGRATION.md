@@ -8,6 +8,14 @@ Ownspace uses **Puck 0.23.0** (`@puckeditor/core`, MIT) as the actual React visu
 - **GrapesJS** (BSD-3-Clause): evaluated as a permissive full editor. Its component/block/layer workflow informed the comparison, but no GrapesJS source or dependency is shipped. A second editor runtime would duplicate Puck and require a separate HTML/CSS conversion boundary. [Source and license](https://github.com/GrapesJS/grapesjs/tree/dev/packages/core).
 - **Webstudio** and **Easyblocks** (AGPL-3.0): visual reference for a selected-object properties panel, breakpoint controls and structured editable sections. These interactions are provided through Puck APIs and independently authored Ownspace React components. No source, assets, styles or examples from these projects are copied, bundled or adapted. [Webstudio](https://github.com/webstudio-is/webstudio), [Easyblocks](https://github.com/easyblocks/easyblocks).
 
+## Full website canvas and Premium library
+
+The October 14 extension adds optional strict `Profile.site` settings: website/profile layout mode, background and foreground colors, a bounded raster background image, pattern and content width. New drafts use website mode without the forced legacy avatar/bio/link header. Existing drafts retain their layout. The original basic document types below remain supported; the document union also includes all thirty typed elements in `lib/premium-elements.ts`. Section slots accept these leaves, with one nesting level and forty blocks across the entire document.
+
+The searchable library uses Puck’s public insert action, preserving native undo/redo. Its toolbar remains visible on mobile. Basic blocks stay in the native drawer; paid drawer categories and insertion permissions reflect the account’s server entitlement. API save/publish checks remain authoritative. Locked library previews do not grant insertion or source export. Widget previews are static inside the editing canvas and interactive in the preview dialog and published site.
+
+See `docs/PREMIUM-ELEMENTS.md`, `docs/SOURCE-EXPORT.md` and `lib/plans.ts` for current controls, license notices and exact limits. New invalid or over-plan saves fail with actionable messages and retain current edits. Published refunded pages use a Free projection; private snapshots remain intact. The canvas settings include an explicit reset-to-Free-appearance action.
+
 ## Document contract
 
 The backwards-compatible optional `Profile.website` field is:

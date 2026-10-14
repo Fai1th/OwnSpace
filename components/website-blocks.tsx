@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { WebsiteDocument, WebsiteLeaf } from "@/lib/website";
 import { websiteUrl, websiteImage } from "@/lib/website";
 import "./website-blocks.css";
+import { PremiumElementView } from "./premium-elements";
 type Size = "small" | "medium" | "large";
 function responsive(size: Size, mobileSize: Size, values: Record<Size, string>): CSSProperties {
   return { "--block-desktop": values[size], "--block-mobile": values[mobileSize] } as CSSProperties;
@@ -88,6 +89,8 @@ export function WebsiteLeafView({
           })}
         />
       );
+    default:
+      return <PremiumElementView element={block} interactive={interactive} />;
   }
 }
 export function WebsiteSection({

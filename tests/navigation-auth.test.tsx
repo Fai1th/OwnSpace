@@ -46,7 +46,7 @@ it("offers returning mobile visitors sign-in from the open navigation menu", () 
 it("keeps the local editor available when Clerk is not configured", () => {
   state.configured = false;
   render(<Navigation />);
-  expect(screen.getByRole("link", { name: "Make your space" }).getAttribute("href")).toBe(
-    "/studio",
+  expect(screen.getByRole("link", { name: "Build your website" }).getAttribute("href")).toBe(
+    "/editor",
   );
 });

@@ -1,0 +1,112 @@
+.site-canvas {
+  --site-background: #171717;
+  --site-foreground: #fbfcfd;
+  --site-accent: #bedd76;
+  --site-content-width: 1120px;
+  position: relative;
+  container-type: inline-size;
+  min-height: 600px;
+  width: 100%;
+  color: var(--site-foreground);
+  background-color: var(--site-background);
+  background-size: cover;
+  background-position: center;
+  font-family: inherit;
+  overflow-wrap: anywhere;
+  isolation: isolate;
+}
+.site-width-narrow {
+  --site-content-width: 780px;
+}
+.site-width-wide {
+  --site-content-width: 1440px;
+}
+.site-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.16;
+}
+.site-pattern-grid::before {
+  background-image:
+    linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.site-pattern-dots::before {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.site-pattern-lines::before {
+  background-image: repeating-linear-gradient(
+    135deg,
+    currentColor 0,
+    currentColor 1px,
+    transparent 1px,
+    transparent 20px
+  );
+}
+.site-content {
+  position: relative;
+  width: 100%;
+}
+.site-content > .website-surface {
+  margin: 0;
+  gap: 0;
+  min-height: 500px;
+}
+.site-content > .website-surface > .website-heading,
+.site-content > .website-surface > .website-text,
+.site-content > .website-surface > .website-image,
+.site-content > .website-surface > .website-link-row,
+.site-content > .website-surface > .website-section,
+.site-content > .website-surface > .website-spacer {
+  width: min(calc(100% - 48px), var(--site-content-width));
+  margin-inline: auto;
+}
+.site-content > .website-surface > .website-heading {
+  padding-top: 40px;
+  margin-bottom: 20px;
+}
+.site-content > .website-surface > .website-text,
+.site-content > .website-surface > .website-image,
+.site-content > .website-surface > .website-link-row {
+  margin-bottom: 24px;
+}
+.site-content .website-section {
+  margin-block: 20px;
+}
+.site-brand {
+  padding: 28px 24px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.7;
+}
+.site-brand a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+.site-canvas a:focus-visible,
+.site-canvas button:focus-visible,
+.site-canvas input:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 4px;
+}
+.site-compact {
+  min-height: 360px;
+}
+.site-compact .site-content > .website-surface {
+  min-height: 300px;
+}
+@container (max-width:600px) {
+  .site-content > .website-surface > .website-heading,
+  .site-content > .website-surface > .website-text,
+  .site-content > .website-surface > .website-image,
+  .site-content > .website-surface > .website-link-row,
+  .site-content > .website-surface > .website-section,
+  .site-content > .website-surface > .website-spacer {
+    width: calc(100% - 32px);
+  }
+}

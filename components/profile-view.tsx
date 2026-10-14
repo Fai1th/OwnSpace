@@ -1,4 +1,5 @@
 import { ArrowUpRightIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { SiteCanvas } from "./site-canvas";
 import type { Profile } from "@/lib/profile";
 import type { ReactNode } from "react";
 import { WebsiteBlocks } from "./website-blocks";
@@ -14,6 +15,16 @@ export function ProfileView({
   websiteContent?: ReactNode;
 }) {
   const style = { "--profile-accent": profile.accent } as React.CSSProperties;
+  if (profile.site?.mode === "website")
+    return (
+      <SiteCanvas profile={profile} compact={compact}>
+        {websiteContent !== undefined
+          ? websiteContent
+          : profile.website && (
+              <WebsiteBlocks document={profile.website} interactive={interactive} />
+            )}
+      </SiteCanvas>
+    );
   return (
     <article
       className={`profile theme-${profile.theme} font-${profile.font} ${compact ? "compact" : ""}`}

@@ -12,11 +12,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       appearance={{
         variables: {
           colorPrimary: "#BEDD76",
-          colorPrimaryForeground: "#172039",
-          colorBackground: "#171e3c",
+          colorPrimaryForeground: "#171717",
+          colorBackground: "#171717",
           colorForeground: "#FBFCFD",
-          colorMutedForeground: "#c2c8dd",
-          colorInput: "#202955",
+          colorMutedForeground: "#c4c4c4",
+          colorInput: "#292929",
           colorInputForeground: "#FBFCFD",
           borderRadius: "12px",
         },

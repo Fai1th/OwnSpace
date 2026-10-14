@@ -12,13 +12,13 @@ export const metadata: Metadata = {
       (process.env.VERCEL_URL ? "https://" + process.env.VERCEL_URL : siteConfig.url),
   ),
   robots: isLaunchBlocked() ? { index: false, follow: false } : undefined,
-  title: { default: "Ownspace · Your corner of the internet", template: "%s · Ownspace" },
+  title: { default: "Ownspace · Build your own website", template: "%s · Ownspace" },
   description:
-    "A home for your socials, your work, and the things you’re into. Make a personal page, give it your own look, and share it with one link.",
+    "Build a website with a visual editor. Arrange content, choose backgrounds and styles, and publish your work, business or project.",
   icons: { icon: "/brand/mark-transparent.png" },
   openGraph: {
-    title: "Ownspace · Your corner of the internet",
-    description: "Your links. Your look. Your own space.",
+    title: "Ownspace · Build your own website",
+    description: "A visual website builder with flexible components, backgrounds and publishing.",
     images: ["/brand/logo-dark.png"],
   },
 };

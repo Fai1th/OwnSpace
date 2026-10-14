@@ -37,8 +37,8 @@ export function Navigation() {
             <Link className="quiet-link" href="/sign-in">
               Sign in
             </Link>
-            <Link className="button small" href="/studio">
-              Make your space <ArrowUpRightIcon />
+            <Link className="button small" href="/editor">
+              Build your website <ArrowUpRightIcon />
             </Link>
           </>
         )}

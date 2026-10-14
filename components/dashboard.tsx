@@ -28,11 +28,11 @@ export function Dashboard({ demo }: { demo: boolean }) {
         } else {
           const response = await fetch("/api/profile", { cache: "no-store" });
           const result = await response.json();
-          if (!response.ok) throw Error(result.error || "Unable to load your page.");
+          if (!response.ok) throw Error(result.error || "Unable to load your website.");
           if (live) setRecord(result.profile);
         }
       } catch (error) {
-        if (live) setError(error instanceof Error ? error.message : "Unable to load your page.");
+        if (live) setError(error instanceof Error ? error.message : "Unable to load your website.");
       } finally {
         if (live) setLoading(false);
       }
@@ -54,9 +54,8 @@ export function Dashboard({ demo }: { demo: boolean }) {
       </header>
       <section className="dashboard-welcome">
         <div>
-          <p className="dashboard-eyebrow">YOUR LITTLE CORNER OF THE INTERNET</p>
-          <h1>{record ? `Welcome back, ${page.displayName}.` : "Make yourself at home."}</h1>
-          <p>Build your page, keep a private draft, and choose when to share it.</p>
+          <h1>Manage your website.</h1>
+          <p>Edit your draft, preview changes and publish when ready.</p>
         </div>
         <Link className="dashboard-main-button" href="/editor">
           Edit website <span aria-hidden="true">↗</span>
@@ -101,13 +100,12 @@ export function Dashboard({ demo }: { demo: boolean }) {
               />
             </div>
             <div className="dashboard-site-info">
-              <p className="dashboard-eyebrow">OWNSPACE PAGE</p>
               <h3>{page.displayName}</h3>
-              <p>{record ? `/${record.handle}` : "Choose your page address in the editor."}</p>
+              <p>{record ? `/${record.handle}` : "Choose your website address in the editor."}</p>
               <p>
                 {record?.published
-                  ? "Your published page stays live while you edit the next version."
-                  : "Your page is private until you publish it."}
+                  ? "Your published website stays live while you edit your draft."
+                  : "Your website is private until you publish it."}
               </p>
               <Link className="dashboard-main-button" href="/editor">
                 Open visual editor <span aria-hidden="true">↗</span>
@@ -118,7 +116,7 @@ export function Dashboard({ demo }: { demo: boolean }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  View published page ↗
+                  View published website ↗
                 </Link>
               )}
               {record && (
@@ -131,12 +129,12 @@ export function Dashboard({ demo }: { demo: boolean }) {
           </div>
         </section>
         <aside className="dashboard-tools">
-          <h2>Make it yours</h2>
+          <h2>Website tools</h2>
           <Link href="/studio">
             <strong>
-              Profile tools <span aria-hidden="true">↗</span>
+              Website settings <span aria-hidden="true">↗</span>
             </strong>
-            <span>About you, links, image cards and page appearance.</span>
+            <span>Address, profile details and publishing controls.</span>
           </Link>
           <Link href="/studio?panel=settings">
             <strong>
@@ -158,9 +156,9 @@ export function Dashboard({ demo }: { demo: boolean }) {
         </section>
       )}
       <footer className="dashboard-footer">
-        <span>One page. Your pace.</span>
+        <span>Ownspace workspace</span>
         <Link href="/legal">Legal center</Link>
-        <Link href="/studio">Profile tools</Link>
+        <Link href="/studio">Website settings</Link>
       </footer>
     </main>
   );

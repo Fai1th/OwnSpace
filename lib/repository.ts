@@ -1,4 +1,5 @@
 import { sanitizeProfile, canUsePremium, type Profile, type ProfileRecord } from "./profile";
+import { assertPlanAllows } from "./plans";
 export type QueryDb = {
   query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
 };
@@ -120,6 +121,7 @@ export class Repository {
           [owner],
         );
         const entitlement = purchase.rows.length ? "paid" : previous?.entitlement || "free";
+        assertPlanAllows(profile, canUsePremium(entitlement));
         const safe = sanitizeProfile(profile, canUsePremium(entitlement));
         const reservation = await tx.query(
           "INSERT INTO handles(handle,owner) VALUES($1,$2) ON CONFLICT(handle) DO UPDATE SET owner=handles.owner RETURNING owner",
@@ -153,6 +155,8 @@ export class Repository {
       if (!current) throw new Error("Save your page before publishing.");
       if (version !== undefined && Number(current.version) !== version)
         throw new Error("Your page changed in another tab. Reload before publishing.");
+      if (publish)
+        assertPlanAllows(current.draft as Profile, canUsePremium(String(current.entitlement)));
       const snapshot = publish
         ? JSON.stringify(
             sanitizeProfile(current.draft as Profile, canUsePremium(String(current.entitlement))),

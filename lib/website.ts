@@ -1,31 +1,8 @@
 import { z } from "zod";
+import { websiteUrl, websiteImage } from "./site-safety";
+export { websiteUrl, websiteImage } from "./site-safety";
+import { premiumElementSchema } from "./premium-elements";
 // Public documents contain data, never HTML, CSS, JavaScript or executable embeds.
-export function websiteUrl(value: string) {
-  try {
-    const url = new URL(value);
-    const host = url.hostname.toLowerCase();
-    return (
-      url.protocol === "https:" &&
-      !url.username &&
-      !url.password &&
-      host.includes(".") &&
-      host !== "localhost" &&
-      !host.endsWith(".localhost") &&
-      !host.endsWith(".local") &&
-      !/^[\d.]+$/.test(host) &&
-      !host.includes(":")
-    );
-  } catch {
-    return false;
-  }
-}
-export function websiteImage(value: string) {
-  return (
-    value === "" ||
-    /^\/art\/[a-z0-9-]+\.svg$/.test(value) ||
-    (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value) && value.length <= 350000)
-  );
-}
 const id = z
   .string()
   .min(1)
@@ -82,7 +59,14 @@ const image = z
 const spacer = z
   .object({ type: z.literal("Spacer"), props: z.object({ id, size, mobileSize: size }).strict() })
   .strict();
-export const websiteLeafSchema = z.discriminatedUnion("type", [heading, text, link, image, spacer]);
+export const websiteLeafSchema = z.discriminatedUnion("type", [
+  heading,
+  text,
+  link,
+  image,
+  spacer,
+  premiumElementSchema,
+]);
 const section = z
   .object({
     type: z.literal("Section"),
@@ -104,6 +88,7 @@ export const websiteBlockSchema = z.discriminatedUnion("type", [
   image,
   spacer,
   section,
+  premiumElementSchema,
 ]);
 export const websiteSchema = z
   .object({
@@ -115,12 +100,36 @@ export const websiteSchema = z
   .superRefine((document, ctx) => {
     const ids = new Set<string>();
     let count = 0;
+    const anchors = new Set<string>();
+    for (const block of document.content) {
+      for (const item of [block, ...(block.type === "Section" ? block.props.content : [])]) {
+        if ("anchor" in item.props && item.props.anchor) {
+          if (anchors.has(item.props.anchor))
+            ctx.addIssue({ code: "custom", message: "Every section anchor must be unique." });
+          anchors.add(item.props.anchor);
+        }
+      }
+    }
     for (const block of document.content) {
       for (const item of [block, ...(block.type === "Section" ? block.props.content : [])]) {
         count++;
         if (ids.has(item.props.id))
           ctx.addIssue({ code: "custom", message: "Every block needs a unique ID." });
         ids.add(item.props.id);
+      }
+    }
+    for (const block of document.content) {
+      for (const item of [block, ...(block.type === "Section" ? block.props.content : [])]) {
+        if (
+          "anchor" in item.props &&
+          item.props.anchor &&
+          item.props.anchor !== item.props.id &&
+          ids.has(item.props.anchor)
+        )
+          ctx.addIssue({
+            code: "custom",
+            message: "Section anchors must not reuse another block ID.",
+          });
       }
     }
     if (count > 40)

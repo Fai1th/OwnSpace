@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { websiteSchema } from "./website";
+import { siteSettingsSchema } from "./site-settings";
+import { FREE_LIMITS, FREE_SITE_STYLE, freeWebsite } from "./plans";
 const reserved = new Set([
   "api",
   "studio",
@@ -102,6 +104,7 @@ export const profileSchema = z.object({
   layout: z.enum(["stack", "grid"]),
   showBrand: z.boolean(),
   website: websiteSchema.optional(),
+  site: siteSettingsSchema.optional(),
 });
 export type Profile = z.infer<typeof profileSchema>;
 export type ProfileRecord = {
@@ -119,7 +122,24 @@ export function canUsePremium(status: string) {
 }
 export function sanitizeProfile(profile: Profile, premium: boolean): Profile {
   if (premium) return profile;
-  return { ...profile, accent: "#BEDD76", font: "manrope", layout: "stack", showBrand: true };
+  const cards = profile.cards.slice(0, FREE_LIMITS.images);
+  return {
+    ...profile,
+    accent: "#BEDD76",
+    font: "manrope",
+    layout: "stack",
+    theme: "night",
+    showBrand: true,
+    background: "",
+    links: profile.links.slice(0, FREE_LIMITS.links),
+    cards,
+    website: freeWebsite(
+      profile.website,
+      FREE_LIMITS.images - cards.length,
+      FREE_LIMITS.links - Math.min(profile.links.length, FREE_LIMITS.links),
+    ),
+    ...(profile.site ? { site: { ...FREE_SITE_STYLE, mode: profile.site.mode } } : {}),
+  };
 }
 export const emptyProfile: Profile = {
   handle: "your-name",

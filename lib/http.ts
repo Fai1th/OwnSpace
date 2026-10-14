@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { siteConfig, getSiteUrl } from "./config";
 import { isLaunchBlocked } from "./deployment";
+import { PlanLimitError } from "./plans";
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -64,6 +65,8 @@ export async function readJson(request: Request, limit = 1700000) {
   }
 }
 export function apiError(error: unknown) {
+  if (error instanceof PlanLimitError)
+    return NextResponse.json({ error: error.message }, { status: 403 });
   if (error instanceof ApiError)
     return NextResponse.json({ error: error.message }, { status: error.status });
   if (

@@ -1,77 +1,65 @@
 import Link from "next/link";
 import {
   ArrowUpRightIcon,
-  LinkSimpleIcon,
+  SquaresFourIcon,
   SlidersHorizontalIcon,
-  DeviceMobileIcon,
+  GlobeSimpleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Navigation } from "@/components/navigation";
 import { Hero } from "@/components/hero";
 import { Gallery } from "@/components/gallery";
 import { Pricing } from "@/components/pricing";
 import { Footer } from "@/components/footer";
+
 export default function Home() {
   return (
     <>
       <Navigation />
-      <main id="main">
+      <main id="main" className="marketing-page">
         <Hero />
         <Gallery />
         <section id="how-it-works" className="section how-section">
           <div className="section-heading">
-            <div>
-              <div className="eyebrow">FROM EMPTY TAB TO YOUR OWN PLACE</div>
-              <h2>
-                A few minutes.
-                <br />A space that stays yours.
-              </h2>
-            </div>
-            <Link className="text-link" href="/studio">
-              Try the editor <ArrowUpRightIcon />
-            </Link>
+            <h2>From a blank page to a published website.</h2>
+            <p>Work in the visual editor. See your changes as you make them.</p>
           </div>
           <div className="steps">
             <article>
-              <span className="step-number">01</span>
+              <SquaresFourIcon />
+              <h3>Add the pieces you need.</h3>
+              <p>
+                Start with text, images and buttons. Premium adds a library of navigation,
+                galleries, layouts and interactive components.
+              </p>
+            </article>
+            <article>
               <SlidersHorizontalIcon />
-              <h3>Find your look.</h3>
+              <h3>Arrange it your way.</h3>
               <p>
-                Start with a style. Change the colors, images and little details until it feels
-                right.
+                Move blocks into place, edit their content and check the mobile view. With Premium,
+                choose backgrounds, patterns and styles.
               </p>
             </article>
             <article>
-              <span className="step-number">02</span>
-              <LinkSimpleIcon />
-              <h3>Put your world in it.</h3>
+              <GlobeSimpleIcon />
+              <h3>Preview, then publish.</h3>
               <p>
-                Your socials, a project, a playlist. Give everything you want to share a place to
-                live.
-              </p>
-            </article>
-            <article>
-              <span className="step-number">03</span>
-              <DeviceMobileIcon />
-              <h3>Take it everywhere.</h3>
-              <p>
-                Publish when you’re ready. One address for your bio, your friends, or your next
-                introduction.
+                Keep working in a private draft. Publish to your Ownspace address when you are
+                ready, and update it whenever you need.
               </p>
             </article>
           </div>
+          <Link className="text-link" href="/editor">
+            Open the editor <ArrowUpRightIcon />
+          </Link>
         </section>
         <section className="section ownership-section">
-          <span className="eyebrow">PERSONAL DOESN’T HAVE TO MEAN PUBLIC</span>
           <div className="ownership-copy">
-            <h2>
-              Share what you want.
-              <br />
-              Keep the rest yours.
-            </h2>
+            <h2>Your draft stays private until you publish.</h2>
             <div>
               <p>
-                Your draft stays private until you publish. Change your mind? Take your page offline
-                in a click. Export your content whenever you like.
+                Preview your website before sharing it. Take it offline when you need to. Export
+                your content, or your React source with Premium.
               </p>
               <Link className="text-link" href="/privacy">
                 Your privacy, explained <ArrowUpRightIcon />
@@ -81,14 +69,12 @@ export default function Home() {
         </section>
         <Pricing />
         <section className="section final-cta">
-          <div className="eyebrow">THE NEXT LINK IN YOUR BIO</div>
-          <h2>
-            Leave a little
-            <br />
-            <span>of yourself here.</span>
-          </h2>
-          <Link className="button" href="/studio">
-            Make your space <ArrowUpRightIcon />
+          <div>
+            <h2>Start with a blank page.</h2>
+            <p>Add your first block in the editor.</p>
+          </div>
+          <Link className="button" href="/editor">
+            Build your website <ArrowUpRightIcon />
           </Link>
         </section>
       </main>

@@ -95,6 +95,8 @@ function Editor({ demo }: { demo: boolean }) {
   const dirty = JSON.stringify(profile) !== baseline.current;
   const dialog = useRef<HTMLDialogElement>(null);
   const premium = accountEntitlement === "paid";
+  const linkLimit = premium ? 20 : 3;
+  const imageLimit = premium ? 6 : 1;
   useEffect(() => {
     let live = true;
     (async () => {
@@ -485,9 +487,12 @@ function Editor({ demo }: { demo: boolean }) {
           ))}
           <div className="sidebar-bottom">
             <small>{premium ? "Premium account" : "Free account"}</small>
+            <small>
+              {premium ? "40 blocks and the full library" : "1 website with 6 basic blocks"}
+            </small>
             <Link className="sidebar-item" href="/pricing">
               <ArrowUpRightIcon />
-              More ways to be you
+              Compare plans
             </Link>
             <Link className="sidebar-item" href="/">
               Back to Ownspace
@@ -617,9 +622,12 @@ function Editor({ demo }: { demo: boolean }) {
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
+                  disabled={!premium}
                   onChange={(e) => void image(e.target.files?.[0], "background")}
                 />,
-                "Images are resized and metadata is removed before upload.",
+                premium
+                  ? "Images are resized and metadata is removed before upload."
+                  : "Custom cover images are available with Premium.",
               )}
               {profile.background && (
                 <button className="button secondary small" onClick={() => update("background", "")}>
@@ -724,7 +732,7 @@ function Editor({ demo }: { demo: boolean }) {
               ))}
               <button
                 className="add-button"
-                disabled={profile.links.length >= 20}
+                disabled={profile.links.length >= linkLimit}
                 onClick={() =>
                   update("links", [
                     ...profile.links,
@@ -734,7 +742,9 @@ function Editor({ demo }: { demo: boolean }) {
               >
                 <PlusIcon /> Add a link
               </button>
-              <span className="field-help">{profile.links.length} / 20 links</span>
+              <span className="field-help">
+                {profile.links.length} / {linkLimit} links
+              </span>
             </div>
           )}
           {panel === "appearance" && (
@@ -745,6 +755,7 @@ function Editor({ demo }: { demo: boolean }) {
                     className={"template-option" + (profile.theme === t.id ? " selected" : "")}
                     key={t.id}
                     onClick={() => update("theme", t.id)}
+                    disabled={!premium && t.id !== "night"}
                     aria-pressed={profile.theme === t.id}
                   >
                     <span className={"style-swatch swatch-" + t.id} />
@@ -755,13 +766,14 @@ function Editor({ demo }: { demo: boolean }) {
               </div>
               <div className="form-divider" />
               <p className="field-help">
-                Preview Premium details here. Free accounts keep the original accent, typography,
-                layout and branding when saved.
+                Free uses a fixed neutral style with Ownspace branding. Premium unlocks styles,
+                backgrounds and the component library in the visual editor.
               </p>
               {field(
                 "Accent color",
                 <input
                   type="color"
+                  disabled={!premium}
                   value={profile.accent}
                   onChange={(e) => update("accent", e.target.value)}
                 />,
@@ -769,6 +781,7 @@ function Editor({ demo }: { demo: boolean }) {
               {field(
                 "Typography",
                 <select
+                  disabled={!premium}
                   value={profile.font}
                   onChange={(e) => update("font", e.target.value as Profile["font"])}
                 >
@@ -779,6 +792,7 @@ function Editor({ demo }: { demo: boolean }) {
               {field(
                 "Link layout",
                 <select
+                  disabled={!premium}
                   value={profile.layout}
                   onChange={(e) => update("layout", e.target.value as Profile["layout"])}
                 >
@@ -790,6 +804,7 @@ function Editor({ demo }: { demo: boolean }) {
                 <label>
                   <input
                     type="checkbox"
+                    disabled={!premium}
                     checked={profile.showBrand}
                     onChange={(e) => update("showBrand", e.target.checked)}
                   />
@@ -865,7 +880,7 @@ function Editor({ demo }: { demo: boolean }) {
               ))}
               <button
                 className="add-button"
-                disabled={profile.cards.length >= 6}
+                disabled={profile.cards.length >= imageLimit}
                 onClick={() =>
                   update("cards", [
                     ...profile.cards,
@@ -876,7 +891,9 @@ function Editor({ demo }: { demo: boolean }) {
                 <PlusIcon />
                 Add an image card
               </button>
-              <span className="field-help">{profile.cards.length} / 6 cards</span>
+              <span className="field-help">
+                {profile.cards.length} / {imageLimit} content images
+              </span>
             </div>
           )}
           {panel === "connections" && (
@@ -942,7 +959,8 @@ function Editor({ demo }: { demo: boolean }) {
                         <button
                           className="button secondary"
                           disabled={
-                            profile.links.length >= 20 || profile.links.some((l) => l.url === r.url)
+                            profile.links.length >= linkLimit ||
+                            profile.links.some((l) => l.url === r.url)
                           }
                           onClick={() => {
                             update("links", [
@@ -969,11 +987,11 @@ function Editor({ demo }: { demo: boolean }) {
           {panel === "settings" && (
             <div className="form-stack">
               <div className="setting-box">
-                <h2>{premium ? "Premium is yours." : "A little more room to be you."}</h2>
+                <h2>{premium ? "Premium is active." : "Build more with Premium."}</h2>
                 <p>
                   {premium
-                    ? "Your account has the extra customization tools. No recurring subscription."
-                    : "Custom colors, alternate typography, grid links and no Ownspace branding. " +
+                    ? "Your account includes the component library, 40 website blocks, custom styles and React source export. No subscription."
+                    : "30+ components, 40 website blocks, custom backgrounds and styles, branding removal and React source export. " +
                       siteConfig.priceLabel +
                       " once."}
                 </p>

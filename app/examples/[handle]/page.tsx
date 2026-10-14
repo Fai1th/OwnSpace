@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { examples } from "@/lib/examples";
+import { websiteExamples as examples } from "@/lib/website-examples";
 import { ProfileView } from "@/components/profile-view";
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
@@ -14,12 +14,12 @@ export default async function Example({ params }: { params: Promise<{ handle: st
     <main id="main" className="public-page">
       <div className="example-bar">
         <span>Example space · {p.displayName}</span>
-        <Link href={"/studio?template=" + p.theme}>Use this style →</Link>
+        <Link href="/editor">Open website editor →</Link>
       </div>
-      <ProfileView profile={p} interactive={false} />
+      <ProfileView profile={p} interactive />
       <div className="public-actions">
         <Link href="/">Back to Ownspace</Link>
-        <Link href="/studio">Make your own space</Link>
+        <Link href="/editor">Make your own space</Link>
       </div>
     </main>
   );

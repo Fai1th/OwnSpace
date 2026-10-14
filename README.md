@@ -1,6 +1,6 @@
 # Ownspace
 
-A complete personal-page application. All local source, dependencies and generated artifacts live in **D:/Vibecoding/Projects/Ownspace**.
+A website builder with a full-width React canvas, a Premium component library and downloadable React source. All local source, dependencies and generated artifacts live in **D:/Vibecoding/Projects/Ownspace**.
 
 ## Run the local product
 
@@ -12,7 +12,7 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Use localhost consistently for Clerk development sessions; the SDK normalizes loopback IPs and Next.js can otherwise proxy requests back to itself. Without service keys, the editor saves a private browser draft; it does not pretend to publish or charge money. Examples are explicitly fictional demonstration profiles.
+Open http://localhost:3000. Use localhost consistently for Clerk development sessions; the SDK normalizes loopback IPs and Next.js can otherwise proxy requests back to itself. Without service keys, the editor saves a private browser draft; it does not pretend to publish or charge money. Examples are explicitly fictional demonstration websites.
 
 ## Configure production
 
@@ -55,6 +55,16 @@ The Ownspace development application is connected locally; its keys are in ignor
 For local auth verification after starting the app, run `npm run test:auth`. It requires development keys and a localhost server, creates one synthetic `+clerk_test` identity, checks signup/email verification, login/logout, API ownership, saved drafts, mobile layout and account deletion, then removes the test identity. No real verification email is sent. Set `OWNSPACE_AUTH_TEST_URL` to a different localhost port when needed. Screenshots/results are written to `work/` on D:. These checks never accept production keys.
 
 The provider has built-in local sign-in/sign-up URLs and redirects back to /dashboard after authentication, even if only the two Clerk keys are configured. Signed-in navigation shows Dashboard and the account menu. Keep email verification enabled. Development Google/GitHub social connections use Clerk's development configuration; production OAuth needs its own approved credentials and domain setup.
+
+## Website plans and editor
+
+Open `/editor` from the authenticated dashboard. New drafts start with a full-width website canvas; legacy profile drafts keep their existing layout until their owner changes it. Add blocks from Puck or search the element library, edit their properties, preview at phone/tablet/desktop widths, save, then publish the saved snapshot.
+
+Free includes one website, six basic blocks, three links across legacy and website content, one content image, fixed neutral styling and Ownspace attribution. Premium includes up to forty blocks, thirty advanced elements plus sections, custom colors/background uploads/patterns/content width, attribution removal and React source ZIP export. All paid elements and backgrounds are checked in the server repository; client flags cannot grant access. Refunds project public pages back to Free limits while retaining the private original. Owners can explicitly reset paid appearance to Free and remove paid blocks to resume saving.
+
+Library sources and license notices are in `docs/PREMIUM-ELEMENTS.md` and `docs/PREMIUM-LICENSES.md`. Radix, Embla, Motion and Prism power actual interactions; the other compositions are original code. Components whose licenses restrict paid bundling are excluded. `docs/SOURCE-EXPORT.md` describes the ZIP boundary and setup. The ZIP is an editable React/Vite/TypeScript project; arbitrary customer JavaScript does not execute on Ownspace’s hosted canvas.
+
+For a repeatable paid browser check, stop the local server, set `OWNSPACE_LOCAL_PREVIEW=1`, then run `npx tsx scripts/verify-premium.ts prepare`. Start the compiled preview at localhost:3003 and run the same script with `check`. Stop the server and run `cleanup` afterward. It requires D:, embedded local storage and Clerk development keys, creates a disposable local paid fixture without a purchase, uses Clerk’s official testing-ticket helper, and removes that fixture and identity afterward. The separate `npm run test:auth` checks actual signup and password-login UI on a Free account. Never run either against production.
 
 ## Optional one-time Premium
 

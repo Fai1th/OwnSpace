@@ -30,18 +30,10 @@ export function Pricing({ standalone = false }: { standalone?: boolean }) {
   return (
     <section id="pricing" className={"section pricing-section" + (standalone ? " standalone" : "")}>
       <div className="section-heading">
-        <div>
-          <div className="eyebrow">SMALL PRICE. PERSONAL SPACE.</div>
-          <h2>
-            Start free.
-            <br />
-            Make it even more yours.
-          </h2>
-        </div>
+        <h2>A simple start. More room with Premium.</h2>
         <p>
-          Publish a page you love for free.
-          <br />
-          Pay once when you want the extra detail.
+          Free covers a small website. One payment unlocks the component library and more control
+          over your design.
         </p>
       </div>
       <div className="pricing-grid">
@@ -50,17 +42,17 @@ export function Pricing({ standalone = false }: { standalone?: boolean }) {
           <h3>
             $0<span> / always</span>
           </h3>
-          <p>Everything you need to have your own corner.</p>
-          <Link className="button secondary" href="/studio">
-            Create your page <ArrowUpRightIcon />
+          <p>A small website with the essentials.</p>
+          <Link className="button secondary" href="/editor">
+            Create a free website <ArrowUpRightIcon />
           </Link>
           <ul>
             {[
-              "Your own profile address",
-              "Four page styles",
-              "Up to 20 links and six image cards",
-              "Mobile-friendly pages",
-              "Edit and publish whenever you like",
+              "1 website with up to 6 basic blocks",
+              "Up to 3 links and 1 content image",
+              "Headings, text, images and buttons",
+              "Fixed neutral style with Ownspace branding",
+              "Private drafts, previews and publishing",
             ].map((t) => (
               <li key={t}>
                 <CheckIcon />
@@ -72,25 +64,25 @@ export function Pricing({ standalone = false }: { standalone?: boolean }) {
         <article className="price-plan premium-plan">
           <div className="plan-header">
             <span className="plan-name">Premium</span>
-            <span className="label-badge">ONE PAYMENT</span>
+            <span className="label-badge">One payment</span>
           </div>
           <h3>
             {siteConfig.priceLabel}
             <span> / once · {siteConfig.currency}</span>
           </h3>
-          <p>A few extra ways to make it unmistakably you.</p>
+          <p>The full library, more blocks and your own design.</p>
           <button className="button" onClick={upgrade} disabled={busy}>
             {busy ? "Opening checkout…" : "Unlock Premium"}
             <ArrowUpRightIcon />
           </button>
           <ul>
             {[
-              "Everything in Free",
-              "Your own accent color",
-              "Alternate typography",
-              "Grid link layout",
+              "30+ components in the Premium library",
+              "Up to 40 blocks per website",
+              "Navigation, galleries, layouts and interactions",
+              "Custom backgrounds, patterns and styles",
               "Remove Ownspace branding",
-              "Premium follows your account",
+              "Export your website as React source",
             ].map((t) => (
               <li key={t}>
                 <CheckIcon />
@@ -107,7 +99,7 @@ export function Pricing({ standalone = false }: { standalone?: boolean }) {
         </p>
       )}
       <p className="pricing-note">
-        One page per account. Images are optimized for a fast, lightweight space.{" "}
+        One website per account. Premium is a one-time purchase.{" "}
         <Link href="/terms">Purchase terms</Link>
       </p>
     </section>
