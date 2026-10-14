@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: { default: "Ownspace · Your corner of the internet", template: "%s · Ownspace" },
   description:
     "A home for your socials, your work, and the things you’re into. Make a personal page, give it your own look, and share it with one link.",
-  icons: { icon: "/brand/mark.svg" },
+  icons: { icon: "/brand/mark-transparent.png" },
   openGraph: {
     title: "Ownspace · Your corner of the internet",
     description: "Your links. Your look. Your own space.",
-    images: ["/brand/social.svg"],
+    images: ["/brand/logo-dark.png"],
   },
 };
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

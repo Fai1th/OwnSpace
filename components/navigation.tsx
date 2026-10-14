@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { ListIcon, XIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { Logo } from "./logo";
+import { AuthControls } from "./auth-controls";
+import { siteConfig } from "@/lib/config";
 export function Navigation() {
   const [open, setOpen] = useState(false);
   return (
@@ -20,12 +22,18 @@ export function Navigation() {
         </Link>
       </nav>
       <div className="nav-actions">
-        <Link className="quiet-link" href="/sign-in">
-          Sign in
-        </Link>
-        <Link className="button small" href="/studio">
-          Make your space <ArrowUpRightIcon />
-        </Link>
+        {siteConfig.authEnabled ? (
+          <AuthControls />
+        ) : (
+          <>
+            <Link className="quiet-link" href="/sign-in">
+              Sign in
+            </Link>
+            <Link className="button small" href="/studio">
+              Make your space <ArrowUpRightIcon />
+            </Link>
+          </>
+        )}
         <button
           className="icon-button mobile-menu"
           aria-label={open ? "Close menu" : "Open menu"}

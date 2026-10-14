@@ -2251,3 +2251,22 @@ dialog:not([open]) {
   border: 0;
   padding: 0;
 }
+
+/* Supplied full wordmark: keep legacy symbol sizing rules from shrinking it. */
+.brand svg.brand-wordmark {
+  width: 188px;
+  height: auto;
+  flex: none;
+}
+.footer-brand .brand svg.brand-wordmark,
+.studio-top .brand svg.brand-wordmark {
+  width: 150px;
+}
+@media (max-width: 600px) {
+  .brand svg.brand-wordmark {
+    width: 132px;
+  }
+  .studio-top .brand svg.brand-wordmark {
+    width: 98px;
+  }
+}

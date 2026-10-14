@@ -1,6 +1,22 @@
 # Verification ledger
 
-Verified October 13, 2026, approximately 9:30 AM America/Chicago.
+Verified October 14, 2026. Latest milestone: live Clerk development integration.
+
+## Clerk integration and supplied branding: October 14
+
+- Created a separate Ownspace development application in the user's existing Clerk account. Term was not changed. The official CLI linked the Git remote and pulled development keys directly to ignored .env.local on D:.
+- CLI init could not recognize the existing nested provider and added a duplicate wrapper. Restored a single configured provider, keeping the existing API authorization boundaries.
+- Added built-in /sign-in, /sign-up and /studio fallback redirects, sign-out to /, and signed-in Dashboard/account controls. No secret is bundled or committed.
+- Reproduced a Clerk/Next.js local rewrite timeout with an IP-bound server. Local dev/start/preview now bind to localhost; browser URLs and browser test defaults use the same origin.
+- Enabled email/password with email verification, Google and GitHub in the development Clerk instance. External Google/GitHub OAuth consent is enabled but was not automated with a real social account.
+- Used the user's new house-shaped logo for the existing header/footer/editor and favicon. Preserved all six supplied originals. A browser check found legacy icon CSS shrinking the full wordmark; corrected its responsive dimensions.
+- **63 unit/component/database tests passed** across 16 files. TypeScript, formatting and the compiled local preview build passed.
+- **Eight real Clerk lifecycle checks passed against the compiled bundle**: signed-out redirect/API rejection; actual signup/test email verification/authenticated save; user-menu logout/API revocation; mobile sign-in/logo/overflow; password login restoring the saved account draft; signed-in navigation; authenticated mobile layout; account/profile deletion.
+- Tests used Clerk's official development testing token and synthetic +clerk_test emails; no real verification email was sent. Temporary identities were deleted after each run. No page was published.
+- Added guarded npm run test:auth for repeatable local verification. It rejects production keys and non-localhost targets; screenshots/results stay under work/ on D:.
+- Clerk doctor confirms the app and development environment are connected. Production instance/domain and signed hosted user.deleted webhook remain for public-launch setup, together with hosted storage and operator/legal configuration.
+- New dashboard theme direction is saved in docs/DASHBOARD-NOTES.md. Light, Midnight and Dark dashboard settings await the user's dashboard mockup and are not implemented in this auth milestone.
+- Current compiled preview: http://localhost:3003. The overnight automation remains paused.
 
 ## Final overnight status: October 13, approximately 9:30 AM Central
 
@@ -122,7 +138,7 @@ Actual profile in a rotatable phone; theme switching; phone reset; changing redu
 
 ## Live-service boundaries
 
-No real Clerk, Stripe, Composio or hosted Postgres credentials were supplied. No external account was created, provider resource provisioned, purchase made or website published. Live OAuth, email delivery, checkout, provider webhooks and hosting behavior are not claimed verified. Supply environment variables and complete the provider dashboard configuration in README, then perform sandbox checks. Legal compliance depends on the actual operator, jurisdiction, audience, retention, taxes and provider contracts.
+October 14 update: Clerk development authentication is connected and its signup, test verification, login/logout, protected persistence and account deletion were verified against the real service. Production Clerk/domain configuration, external social OAuth consent and hosted deletion-webhook delivery remain unverified. Stripe, Composio and hosted Postgres still have no supplied credentials; their live checks remain outstanding. No purchase or website publication occurred. Complete the remaining production environment and provider-dashboard setup in README. Legal compliance depends on the actual operator, jurisdiction, audience, retention, taxes and provider contracts.
 
 ## Overnight automation
 

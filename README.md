@@ -8,7 +8,7 @@ cd D:\Vibecoding\Projects\Ownspace
 npm ci
 npm run dev
 ```
-Open http://127.0.0.1:3000. Without service keys, the editor saves a private browser draft; it does not pretend to publish or charge money. Examples are explicitly fictional demonstration profiles.
+Open http://localhost:3000. Use localhost consistently for Clerk development sessions; the SDK normalizes loopback IPs and Next.js can otherwise proxy requests back to itself. Without service keys, the editor saves a private browser draft; it does not pretend to publish or charge money. Examples are explicitly fictional demonstration profiles.
 
 ## Configure production
 Copy `.env.example` to `.env.local`, then supply the real values. Never commit secrets. Public `NEXT_PUBLIC_` values are included in the browser bundle, so never put a secret in one.
@@ -34,11 +34,17 @@ npm run start:preview
 These explicitly bypass production readiness only for a local preview, bound to localhost. They are not public deployment commands. Development storage uses embedded Postgres at `LOCAL_DATABASE_PATH`, on D:. Production requires real Postgres.
 
 ## Clerk
+The Ownspace development application is connected locally; its keys are in ignored .env.local, never in Git. Term uses its own separate application. On another machine, use the Clerk CLI to link Ownspace and pull its development environment. Production activation remains a separate domain/provider setup step.
+
 1. Create/configure an application, set allowed origins and the supplied sign-in/sign-up paths.
 2. Enable GitHub in Social Connections if GitHub sign-in is wanted; this is separate from repository importing.
 3. Configure Clerk signup legal acceptance using your actual Terms/Privacy URLs and an age/guardian policy suitable for your audience.
 4. Add a webhook for `user.deleted` at `https://YOUR_ORIGIN/api/webhooks/clerk`; set `CLERK_WEBHOOK_SIGNING_SECRET`. This removes published data and revokes GitHub connections even if deletion happens inside Clerk's account UI or dashboard.
 5. Verify account creation, social sign-in, sign-out and deletion with test accounts before using live keys.
+
+For local auth verification after starting the app, run `npm run test:auth`. It requires development keys and a localhost server, creates one synthetic `+clerk_test` identity, checks signup/email verification, login/logout, API ownership, saved drafts, mobile layout and account deletion, then removes the test identity. No real verification email is sent. Set `OWNSPACE_AUTH_TEST_URL` to a different localhost port when needed. Screenshots/results are written to `work/` on D:. These checks never accept production keys.
+
+The provider has built-in local sign-in/sign-up URLs and redirects back to /studio after authentication, even if only the two Clerk keys are configured. Signed-in navigation shows Dashboard and the account menu. Keep email verification enabled. Development Google/GitHub social connections use Clerk's development configuration; production OAuth needs its own approved credentials and domain setup.
 
 ## Optional one-time Premium
 Set all three Stripe variables together. Configure an active **one-time** price, price amount in minor currency units, displayed price label and currency. The default design uses $12 USD, but these values are configuration, not provider identifiers.

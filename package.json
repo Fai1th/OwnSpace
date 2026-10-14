@@ -6,12 +6,13 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "next dev --webpack --hostname 127.0.0.1",
+    "dev": "next dev --webpack --hostname localhost",
     "build": "tsx scripts/validate-deployment.ts && next build --webpack",
-    "start": "tsx scripts/validate-deployment.ts && next start --hostname 127.0.0.1",
+    "start": "tsx scripts/validate-deployment.ts && next start --hostname localhost",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:auth": "node scripts/verify-clerk.mjs",
     "check": "npm run typecheck && npm test && npm run build:preview",
     "setup": "tsx scripts/setup.ts",
     "format": "prettier --write app components lib scripts tests docs *.ts *.json",
@@ -39,6 +40,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@clerk/backend": "^3.23.2",
+    "@clerk/testing": "^2.2.45",
     "@playwright/test": "latest",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^22.0.0",

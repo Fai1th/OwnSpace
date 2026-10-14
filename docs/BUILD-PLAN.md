@@ -4,7 +4,7 @@ User-authorized full build, October 13, 2026. Local project and dependencies: D:
 
 ## Design
 
-Consumer personal-site SaaS. Latest reference two-slash logo, #BEDD76 accent, #202955 canvas, #FBFCFD text, #2A312B muted surfaces. Manrope type, asymmetric product-led homepage, interactive CSS 3D phone displaying the real profile renderer, example gallery without fabricated customer statistics. Motion communicates selection and feedback; respect reduced motion. Buttons 12px, panels 20px, phone physical rounded frame.
+Consumer personal-site SaaS. October 14 update: the user's house-shaped Ownspace logo supersedes the prior two-slash mark; dashboard theme work waits for the user's mockup (docs/DASHBOARD-NOTES.md). #BEDD76 accent, #202955 canvas, #FBFCFD text, #2A312B muted surfaces. Manrope type, asymmetric product-led homepage, interactive CSS 3D phone displaying the real profile renderer, example gallery without fabricated customer statistics. Motion communicates selection and feedback; respect reduced motion. Buttons 12px, panels 20px, phone physical rounded frame.
 FutureUI reference is inspiration for an independently implemented phone, not copied premium code. Official Chakra/Saas UI preset for accessible product controls; no paid components.
 
 ## Product scope

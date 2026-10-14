@@ -7,7 +7,7 @@ const out = spawnSync(
   [
     path.join(process.cwd(), "node_modules/next/dist/bin/next"),
     mode,
-    ...(mode === "build" ? ["--webpack"] : ["--hostname", "127.0.0.1"]),
+    ...(mode === "build" ? ["--webpack"] : ["--hostname", "localhost"]),
     ...process.argv.slice(3),
   ],
   {
