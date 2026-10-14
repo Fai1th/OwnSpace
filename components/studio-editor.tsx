@@ -83,7 +83,6 @@ function Editor({ demo }: { demo: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [dirty, setDirty] = useState(false);
   const [preview, setPreview] = useState(false);
   const [wide, setWide] = useState(false);
   const [github, setGithub] = useState<{
@@ -93,6 +92,7 @@ function Editor({ demo }: { demo: boolean }) {
   } | null>(null);
   const [deleteText, setDeleteText] = useState("");
   const baseline = useRef("");
+  const dirty = JSON.stringify(profile) !== baseline.current;
   const dialog = useRef<HTMLDialogElement>(null);
   const premium = accountEntitlement === "paid";
   useEffect(() => {
@@ -100,7 +100,7 @@ function Editor({ demo }: { demo: boolean }) {
     (async () => {
       try {
         const query = new URLSearchParams(location.search);
-        if (query.get("panel") === "upgrade") setPanel("settings");
+        if (["upgrade", "settings"].includes(query.get("panel") || "")) setPanel("settings");
         if (query.has("github")) {
           setPanel("connections");
           if (!demo) void loadGithub();
@@ -167,7 +167,6 @@ function Editor({ demo }: { demo: boolean }) {
   }, [demo, loadAttempt]);
   useEffect(() => {
     if (!ready) return;
-    setDirty(JSON.stringify(profile) !== baseline.current);
     if (demo) {
       const timer = setTimeout(() => {
         try {
@@ -181,13 +180,13 @@ function Editor({ demo }: { demo: boolean }) {
   }, [profile, ready, demo, record?.version]);
   useEffect(() => {
     const before = (e: BeforeUnloadEvent) => {
-      if (dirty && !demo) {
+      if (ready && dirty && !demo) {
         e.preventDefault();
       }
     };
     window.addEventListener("beforeunload", before);
     return () => window.removeEventListener("beforeunload", before);
-  }, [dirty, demo]);
+  }, [dirty, demo, ready]);
   useEffect(() => {
     if (preview) dialog.current?.showModal();
     else dialog.current?.close();
@@ -220,7 +219,6 @@ function Editor({ demo }: { demo: boolean }) {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(parsed.data));
         baseline.current = JSON.stringify(parsed.data);
         setProfile(parsed.data);
-        setDirty(false);
         setMessage("Draft saved in this browser. Sign in when you're ready to publish.");
         return null;
       }

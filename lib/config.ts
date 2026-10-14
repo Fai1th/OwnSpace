@@ -18,7 +18,7 @@ export const siteConfig = {
   minimumAge: Number(process.env.NEXT_PUBLIC_MINIMUM_AGE || "16"),
   gaId: process.env.NEXT_PUBLIC_GA_ID || "",
   metaPixel: process.env.NEXT_PUBLIC_META_PIXEL_ID || "",
-  termsDate: process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE || "2026-10-13",
+  termsDate: process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE || "2026-10-14",
   paymentPollDelayMs: publicInteger(
     process.env.NEXT_PUBLIC_PAYMENT_POLL_DELAY_MS,
     2500,

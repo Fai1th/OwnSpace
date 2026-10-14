@@ -1,7 +1,9 @@
 # Third-party notices
+
 Ownspace uses open-source dependencies under their respective distributed licenses. The lockfile pins the installed versions; retain license notices when distributing source or bundles.
 
 - Next.js and React: MIT.
+- Puck visual editor: MIT. Its complete notice and editor reuse boundaries are in `THIRD_PARTY_NOTICES.md`.
 - Chakra UI / Emotion / Saas UI Chakra preset: MIT; see installed package LICENSE files.
 - Phosphor icons: MIT.
 - Motion: MIT.

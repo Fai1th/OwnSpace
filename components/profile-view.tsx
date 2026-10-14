@@ -1,13 +1,17 @@
 import { ArrowUpRightIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import type { Profile } from "@/lib/profile";
+import type { ReactNode } from "react";
+import { WebsiteBlocks } from "./website-blocks";
 export function ProfileView({
   profile,
   compact = false,
   interactive = true,
+  websiteContent,
 }: {
   profile: Profile;
   compact?: boolean;
   interactive?: boolean;
+  websiteContent?: ReactNode;
 }) {
   const style = { "--profile-accent": profile.accent } as React.CSSProperties;
   return (
@@ -75,6 +79,11 @@ export function ProfileView({
             ))}
           </div>
         )}
+        {websiteContent !== undefined
+          ? websiteContent
+          : profile.website && (
+              <WebsiteBlocks document={profile.website} interactive={interactive} />
+            )}
         {profile.showBrand &&
           (interactive ? (
             <a className="profile-brand" href="/studio">

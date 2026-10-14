@@ -4,10 +4,12 @@ import { getRepository } from "@/lib/db";
 import { validateHandle } from "@/lib/profile";
 import { ProfileView } from "@/components/profile-view";
 import { ViewTracker } from "@/components/view-tracker";
+import { isLaunchBlocked } from "@/lib/deployment";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  if (!validateHandle(handle)) return { title: "Page not found", robots: { index: false } };
+  if (isLaunchBlocked() || !validateHandle(handle))
+    return { title: "Page not found", robots: { index: false } };
   const p = await (await getRepository()).publicProfile(handle);
   return {
     title: p ? p.displayName : "Page not found",
@@ -17,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
 }
 export default async function PublicProfile({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  if (!validateHandle(handle)) notFound();
+  if (isLaunchBlocked() || !validateHandle(handle)) notFound();
   const p = await (await getRepository()).publicProfile(handle);
   if (!p) notFound();
   return (

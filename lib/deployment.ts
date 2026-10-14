@@ -12,6 +12,11 @@ export const requiredProductionEnv = [
   "NEXT_PUBLIC_DATABASE_PROVIDER",
   "NEXT_PUBLIC_DATA_REGION",
 ] as const;
+export function isLaunchBlocked(env: Record<string, string | undefined> = process.env) {
+  const hosted =
+    env.VERCEL === "1" || (env.NODE_ENV === "production" && env.OWNSPACE_LOCAL_PREVIEW !== "1");
+  return hosted && deploymentIssues(env).length > 0;
+}
 export function deploymentIssues(env: Record<string, string | undefined>) {
   const issues: string[] = requiredProductionEnv.filter((k) => !env[k]?.trim());
   for (const group of [

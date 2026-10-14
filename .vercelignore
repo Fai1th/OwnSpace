@@ -1,0 +1,9 @@
+.git/
+node_modules/
+.next/
+.npm-cache/
+work/
+test-results/
+playwright-report/
+.ownspace-data/
+.env*

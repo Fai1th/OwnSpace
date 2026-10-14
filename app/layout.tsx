@@ -5,8 +5,13 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { CookieConsent } from "@/components/cookie-consent";
 import { siteConfig } from "@/lib/config";
+import { isLaunchBlocked } from "@/lib/deployment";
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_URL ? "https://" + process.env.VERCEL_URL : siteConfig.url),
+  ),
+  robots: isLaunchBlocked() ? { index: false, follow: false } : undefined,
   title: { default: "Ownspace · Your corner of the internet", template: "%s · Ownspace" },
   description:
     "A home for your socials, your work, and the things you’re into. Make a personal page, give it your own look, and share it with one link.",

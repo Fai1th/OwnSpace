@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 const state = vi.hoisted(() => ({ configured: true, loaded: true, signedIn: false }));
 vi.mock("../lib/config", () => ({
   siteConfig: {
@@ -24,7 +24,7 @@ afterEach(cleanup);
 it("lets a signed-in user open their dashboard without offering sign-in again", () => {
   state.signedIn = true;
   render(<Navigation />);
-  expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("href")).toBe("/studio");
+  expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("href")).toBe("/dashboard");
   expect(screen.queryByRole("link", { name: "Sign in" })).toBeNull();
 });
 it("offers account creation to signed-out users when Clerk is connected", () => {
@@ -33,6 +33,15 @@ it("offers account creation to signed-out users when Clerk is connected", () => 
     "/sign-up",
   );
   expect(screen.getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe("/sign-in");
+});
+it("offers returning mobile visitors sign-in from the open navigation menu", () => {
+  render(<Navigation />);
+  fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+  expect(
+    within(screen.getByRole("navigation", { name: "Main navigation" }))
+      .getByRole("link", { name: "Sign in" })
+      .getAttribute("href"),
+  ).toBe("/sign-in");
 });
 it("keeps the local editor available when Clerk is not configured", () => {
   state.configured = false;

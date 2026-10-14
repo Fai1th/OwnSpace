@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { requireSiteAgreement } from "@/lib/agreements";
 import { getRepository } from "@/lib/db";
 import { stripeClient, billingEnabled } from "@/lib/billing";
 import { getSiteUrl } from "@/lib/config";
@@ -12,6 +13,7 @@ export async function POST(req: Request) {
     const profile = await repo.get(owner);
     if (!profile) throw new ApiError("Save your page before upgrading.");
     if (profile.entitlement === "paid") throw new ApiError("Your account already has Premium.");
+    await requireSiteAgreement(owner);
     if (!(await repo.rateLimit("checkout:" + owner, 5, 600)))
       throw new ApiError("Please wait before trying again.", 429);
     const metadata = { owner, purchase_kind: "ownspace-premium" };

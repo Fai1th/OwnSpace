@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NU
 CREATE TABLE IF NOT EXISTS reports(id BIGSERIAL PRIMARY KEY,handle TEXT NOT NULL,reason TEXT NOT NULL,details TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created_at TIMESTAMPTZ NOT NULL DEFAULT now());
 CREATE TABLE IF NOT EXISTS connections(owner TEXT PRIMARY KEY,account_id TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS deletion_events(id TEXT PRIMARY KEY,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS user_agreements(owner TEXT NOT NULL,version TEXT NOT NULL,accepted_at TIMESTAMPTZ NOT NULL DEFAULT now(),PRIMARY KEY(owner,version));
 `;
 function record(r: Record<string, unknown>): ProfileRecord {
   return {
@@ -35,6 +36,50 @@ async function releaseUnused(tx: QueryDb, owner: string) {
 }
 export class Repository {
   constructor(private db: Db) {}
+  async agreement(owner: string, version: string) {
+    const result = await this.db.query(
+      "SELECT version,accepted_at FROM user_agreements WHERE owner=$1 AND version=$2",
+      [owner, version],
+    );
+    const row = result.rows[0];
+    return row ? { version: String(row.version), acceptedAt: String(row.accepted_at) } : null;
+  }
+  async acceptAgreement(owner: string, version: string) {
+    await this.db.query(
+      "INSERT INTO user_agreements(owner,version) VALUES($1,$2) ON CONFLICT DO NOTHING",
+      [owner, version],
+    );
+    return (await this.agreement(owner, version))!;
+  }
+  async exportAccount(owner: string) {
+    const [profile, entitlement, receipts, purchases, connection] = await Promise.all([
+      this.get(owner),
+      this.entitlement(owner),
+      this.db.query(
+        "SELECT version,accepted_at FROM user_agreements WHERE owner=$1 ORDER BY accepted_at",
+        [owner],
+      ),
+      this.db.query(
+        "SELECT payment_id,status,created_at FROM purchases WHERE owner=$1 ORDER BY created_at",
+        [owner],
+      ),
+      this.connection(owner),
+    ]);
+    return {
+      profile,
+      entitlement,
+      github: { connected: Boolean(connection) },
+      agreements: receipts.rows.map((row) => ({
+        version: String(row.version),
+        acceptedAt: String(row.accepted_at),
+      })),
+      purchases: purchases.rows.map((row) => ({
+        paymentId: String(row.payment_id),
+        status: String(row.status),
+        createdAt: String(row.created_at),
+      })),
+    };
+  }
   async get(owner: string) {
     const r = await this.db.query("SELECT * FROM profiles WHERE owner=$1", [owner]);
     return r.rows[0] ? record(r.rows[0]) : null;
@@ -126,8 +171,10 @@ export class Repository {
       await tx.query("DELETE FROM profiles WHERE owner=$1", [owner]);
       await tx.query("DELETE FROM handles WHERE owner=$1", [owner]);
       await tx.query("DELETE FROM connections WHERE owner=$1", [owner]);
-      if (deleteAccount)
+      if (deleteAccount) {
         await tx.query("UPDATE purchases SET owner='deleted' WHERE owner=$1", [owner]);
+        await tx.query("DELETE FROM user_agreements WHERE owner=$1", [owner]);
+      }
     });
   }
   async billing(event: {

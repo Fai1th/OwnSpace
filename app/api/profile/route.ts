@@ -8,7 +8,7 @@ export async function GET() {
     const owner = await ownerId();
     const repo = await getRepository();
     const [profile, entitlement] = await Promise.all([repo.get(owner), repo.entitlement(owner)]);
-    return json({ profile, entitlement });
+    return json({ owner, profile, entitlement });
   } catch (e) {
     return apiError(e);
   }

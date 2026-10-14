@@ -3,8 +3,11 @@ import Link from "next/link";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 import { siteConfig } from "@/lib/config";
+import { isLaunchBlocked } from "@/lib/deployment";
+import { ServiceUnavailable } from "@/components/service-unavailable";
 export const metadata = { title: "Create an account", robots: { index: false } };
 export default function Page() {
+  if (isLaunchBlocked()) return <ServiceUnavailable />;
   return (
     <>
       <Navigation />

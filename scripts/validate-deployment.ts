@@ -1,14 +1,16 @@
 import nextEnv from "@next/env";
-const { loadEnvConfig } = nextEnv;
 import { deploymentIssues } from "../lib/deployment";
-loadEnvConfig(process.cwd());
-if (process.env.OWNSPACE_LOCAL_PREVIEW !== "1") {
-  const issues = deploymentIssues(process.env);
-  if (issues.length) {
-    console.error(
-      "Production configuration is incomplete. Set the following in your deployment environment:\n" +
-        issues.map((x) => " - " + x).join("\n"),
-    );
-    process.exit(1);
-  }
-} else console.log("Explicit local preview build. Public launch is not configured.");
+nextEnv.loadEnvConfig(process.cwd());
+const issues = deploymentIssues(process.env);
+if (issues.length) {
+  console.warn(
+    "Public launch configuration is incomplete:\n" + issues.map((name) => " - " + name).join("\n"),
+  );
+  if (process.argv.includes("--strict")) process.exit(1);
+  console.warn(
+    "Compilation can continue. Hosted accounts, publishing and purchases remain unavailable until setup is complete.",
+  );
+} else
+  console.log(
+    "Required launch configuration is present. Provider dashboard setup still needs verification.",
+  );

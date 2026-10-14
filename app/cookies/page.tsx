@@ -1,49 +1,89 @@
+import Link from "next/link";
 import { LegalShell } from "@/components/legal-shell";
 import { CookieSettingsButton } from "@/components/cookie-settings-button";
-export const metadata = { title: "Cookies" };
+import { siteConfig } from "@/lib/config";
+import styles from "@/components/legal.module.css";
+export const metadata = { title: "Cookie policy" };
 export default function Page() {
   return (
     <LegalShell
       title="Cookies, on your terms."
-      intro="Essential storage keeps things working. Everything else is your choice."
+      intro="Essential storage keeps things working. Analytics and marketing are your choice."
     >
-      <h2>Essential storage</h2>
+      <h2>Cookies and similar storage</h2>
       <p>
-        We store your cookie choice as ownspace-consent in a first-party cookie and browser storage
-        for up to 180 days. Authentication cookies from Clerk, when configured, support sign-in and
-        security. A local editor draft is stored in your browser when you try the editor without an
-        account. Essential storage is not used for advertising.
+        Cookies are small values stored by your browser and sent to a website. Local storage stays
+        in your browser. Ownspace uses both for the purposes below. Optional categories are off
+        until you choose them, and rejecting them does not stop editing or publication.
       </p>
-      <h2>Analytics</h2>
+      <dl>
+        <dt>Essential · Ownspace consent</dt>
+        <dd>
+          <code>ownspace-consent</code> is a first-party cookie and local-storage record containing
+          your category choices, version and update time. It lasts up to 180 days. It remembers your
+          choice, including rejection, rather than tracking you for advertising.
+        </dd>
+        <dt>Essential · Account and security</dt>
+        <dd>
+          Clerk uses authentication/session cookies when sign-in is configured. Their names and
+          lifetimes depend on the configured authentication flow. Hosting or payment services may
+          also use necessary security/session storage when you request those features. The final
+          provider inventory and durations must be verified before public launch.
+        </dd>
+        <dt>Functional · Your editor draft</dt>
+        <dd>
+          The editor saves a browser draft to preserve your work. It is not an advertising
+          identifier and has no application-set automatic expiry. Use Studio’s deletion controls or
+          clear this site’s browser storage to remove a local copy. Clearing local storage does not
+          delete a saved account or published page.
+        </dd>
+        <dt>Optional · Analytics</dt>
+        <dd>
+          With analytics consent, Ownspace counts eligible profile views. Google Analytics is{" "}
+          {siteConfig.gaId ? "configured" : "not configured"}; it only loads after analytics
+          consent. When enabled it may use <code>_ga</code> and related cookies to measure page use.
+          Exact provider lifetimes depend on the deployed configuration and must be disclosed before
+          enabling it.
+        </dd>
+        <dt>Optional · Marketing</dt>
+        <dd>
+          Meta Pixel is {siteConfig.metaPixel ? "configured" : "not configured"}. When configured
+          and permitted by marketing consent, it measures advertising-related page visits and may
+          set <code>_fbp</code> or <code>_fbc</code>. Exact lifetimes must be verified for the
+          deployed setup. No marketing script loads before consent.
+        </dd>
+      </dl>
+      <h2>Choose, reject or withdraw</h2>
       <p>
-        Off by default. If you accept analytics, Ownspace may count a limited page view and, if
-        enabled by the operator, load Google Analytics. Google may set _ga or related cookies
-        according to the configured retention. Analytics help understand use of the service.
-        Rejected visitors are not included in Ownspace’s consented page-view counter.
+        Open preferences to enable categories independently or choose “Reject optional” to refuse or
+        withdraw both. Consent is specific to this browser/site storage and may need to be set again
+        on another device or after storage is cleared. Signing in or agreeing to the terms does not
+        opt you into tracking.
       </p>
-      <h2>Marketing</h2>
+      <div className={styles.actions}>
+        <CookieSettingsButton />
+      </div>
       <p>
-        Off by default. If you accept marketing and Meta Pixel is configured, it can measure
-        advertising and set cookies such as _fbp or _fbc. No marketing script is loaded before
-        consent. Rejecting marketing does not affect page editing or publication.
+        When you withdraw, Ownspace disables optional integrations and removes accessible
+        first-party tracking cookies. Withdrawal does not undo past lawful processing or
+        automatically erase information a provider already received. Use{" "}
+        <Link href="/privacy-choices">privacy choices</Link> to request other action. If browser
+        storage is blocked, your choice may not persist across visits.
       </p>
-      <h2>Changing your mind</h2>
+      <h2>Global Privacy Control and browser controls</h2>
       <p>
-        Accept or reject optional categories independently. Reopen preferences from any footer or
-        your account Settings. On withdrawal, Ownspace disables the optional integration and removes
-        accessible first-party tracking cookies. Withdrawal does not erase data already received by
-        a provider; contact the operator to exercise applicable deletion rights.
+        When a browser exposes or sends Global Privacy Control, Ownspace keeps optional analytics
+        and marketing off, including when a previous preference allowed them. This control does not
+        turn off necessary account/security storage. You can also block or delete cookies in browser
+        settings; blocking essential storage may affect sign-in and saving your preference.
       </p>
-      <CookieSettingsButton />
-      <h2>Global Privacy Control</h2>
+      <h2>Links and policy updates</h2>
       <p>
-        When your browser sends or exposes Global Privacy Control, optional analytics and marketing
-        stay off even if a previous choice allowed them.
-      </p>
-      <h2>External links</h2>
-      <p>
-        Opening a link on a published profile takes you to a separate service. Its cookie policy
-        applies there. Ownspace does not load social embeds on your profile automatically.
+        User pages link to external services rather than automatically loading social embeds.
+        Visiting an external link subjects that visit to the other site’s storage practices. We will
+        review this inventory when integrations change and seek the required consent before using
+        new optional purposes. See the <Link href="/privacy">privacy policy</Link> for processing
+        and rights information.
       </p>
     </LegalShell>
   );

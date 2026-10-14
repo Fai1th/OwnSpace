@@ -2,6 +2,7 @@ import { beforeAll, afterAll, it, expect, vi } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { Repository, schemaSql } from "../lib/repository";
 import { emptyProfile } from "../lib/profile";
+import { LEGAL_VERSION } from "../lib/legal-content";
 const state = vi.hoisted(() => ({ owner: "user-a", repo: null as unknown as Repository }));
 vi.mock("@clerk/nextjs/server", () => ({ auth: async () => ({ userId: state.owner || null }) }));
 vi.mock("../lib/config", () => ({
@@ -49,6 +50,7 @@ it("uses server identity and strips injected owner fields", async () => {
 });
 it("prevents publication by another owner", async () => {
   state.owner = "user-b";
+  await state.repo.acceptAgreement(state.owner, LEGAL_VERSION);
   const r = await publish(
     new Request("http://localhost:3000/api/publish", {
       method: "POST",

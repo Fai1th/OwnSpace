@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=22"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev --webpack --hostname localhost",
@@ -15,6 +15,7 @@
     "test:auth": "node scripts/verify-clerk.mjs",
     "check": "npm run typecheck && npm test && npm run build:preview",
     "setup": "tsx scripts/setup.ts",
+    "validate:production": "tsx scripts/validate-deployment.ts --strict",
     "format": "prettier --write app components lib scripts tests docs *.ts *.json",
     "format:check": "prettier --check app components lib scripts tests docs *.ts *.json",
     "build:preview": "tsx scripts/preview.ts build",
@@ -29,6 +30,7 @@
     "@emotion/react": "^11.14.0",
     "@fontsource-variable/manrope": "latest",
     "@phosphor-icons/react": "^2.1.10",
+    "@puckeditor/core": "^0.23.0",
     "@saas-ui/chakra-preset": "latest",
     "motion": "^12.0.0",
     "next": "16.4.0",

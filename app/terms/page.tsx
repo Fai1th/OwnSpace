@@ -1,99 +1,151 @@
 import Link from "next/link";
 import { LegalShell } from "@/components/legal-shell";
 import { siteConfig } from "@/lib/config";
-export const metadata = { title: "Terms" };
+export const metadata = { title: "Terms of use" };
+const sections = [
+  { id: "agreement", title: "Agreement & accounts" },
+  { id: "content", title: "Your content" },
+  { id: "premium", title: "Premium & payments" },
+  { id: "availability", title: "Service & termination" },
+  { id: "disputes", title: "Rights & disputes" },
+];
 export default function Page() {
   return (
     <LegalShell
       title="Terms of use."
-      intro="The agreement for using your Ownspace account and page."
+      intro="The agreement for your Ownspace account, editor and published page."
+      sections={sections}
     >
-      <h2>Using Ownspace</h2>
+      <h2 id="agreement">1. Your agreement with the operator</h2>
       <p>
-        Ownspace provides hosted personal pages and an editor. Your agreement is with{" "}
-        {siteConfig.operator || "the configured Ownspace operator"}. You must be at least{" "}
-        {siteConfig.minimumAge}, meet any higher local minimum, and have authority to enter this
-        agreement. If local law requires a parent or guardian’s agreement, obtain it before using
-        the service.
+        Ownspace is a hosted personal page builder. Your agreement is with{" "}
+        {siteConfig.operator || "the Ownspace operator, whose legal identity is pending"}. These
+        terms include the <Link href="/acceptable-use">acceptable use policy</Link> and{" "}
+        <Link href="/refunds">payments and refunds policy</Link>. The{" "}
+        <Link href="/privacy">privacy policy</Link> explains data processing; agreeing to these
+        terms is not consent to optional tracking.
       </p>
-      <h2>Your account</h2>
       <p>
-        Keep account access secure and provide accurate required information. You are responsible
-        for activity you authorize. Do not impersonate another person, interfere with other
-        accounts, or try to bypass security or paid feature controls.
+        You must be at least {siteConfig.minimumAge}, meet any higher minimum that applies where you
+        live, and have legal capacity to enter this agreement. Obtain a parent or guardian’s
+        agreement if required by your local law. If you act for an organization, you must be
+        authorized to bind it.
       </p>
-      <h2>Your content</h2>
+      <h3>Your account and security</h3>
       <p>
-        You retain ownership of content you upload. You give the operator a limited license to
-        store, format and display that content as necessary to provide Ownspace, including making it
-        public when you publish. You must have the rights and permissions needed for your images,
-        links, names and other content. This license ends when the content is removed, except for
-        necessary backups and legally required records.
+        Provide accurate required information and keep your sign-in methods secure. You are
+        responsible for content you submit and activity you authorize. Contact the operator promptly
+        if you suspect unauthorized access. Do not share access in a way that compromises other
+        people or try to bypass account, payment or security controls.
       </p>
-      <h2>Acceptable use</h2>
+      <h2 id="content">2. You keep ownership of your content</h2>
       <p>
-        Do not publish illegal content, child sexual abuse material, threats, targeted harassment,
-        private information without permission, scams, phishing, malware, content that infringes
-        intellectual property, or content that impersonates or deceives others. Do not use Ownspace
-        to facilitate illegal transactions or exploit vulnerable people. We may restrict or remove
-        content and accounts where necessary to protect users, comply with law or enforce these
-        terms. <Link href="/report">Report a page</Link> if you believe it violates these rules.
+        Your text, images, profile and links remain yours or their respective owners’. You grant the
+        operator a non-exclusive, worldwide, royalty-free permission to store, copy, format,
+        transmit and display your content only as reasonably needed to operate, secure and deliver
+        Ownspace. Publishing instructs us to make your published content publicly accessible. This
+        permission does not transfer ownership or authorize unrelated advertising use of your work.
       </p>
-      <h2>Free and Premium</h2>
       <p>
-        Free includes one page, four styles, up to 20 links and six image cards. Premium adds custom
-        accent colors, alternate typography, grid links and removal of Ownspace branding. The price
-        and currency are displayed before checkout. Premium is a one-time account upgrade, with no
-        recurring subscription. “One-time” does not promise perpetual operation of the service.
-        Features may evolve, but changes must respect applicable consumer rights and purchased
-        entitlements.
+        The permission ends when your content is removed, except for limited backup copies, required
+        legal records and processing needed to complete removal. Visitors or search engines may keep
+        their own copies of previously public content. You must have the permissions needed for
+        anything you publish, including other people’s names, likenesses, images and personal
+        information.
       </p>
-      <h2>Payments and refunds</h2>
+      <h3>Ownspace and third-party rights</h3>
       <p>
-        Stripe processes payments. The checkout amount is authoritative, including any disclosed
-        taxes. Premium is activated after verified payment confirmation. If a purchase is fully
-        refunded or disputed, the associated paid entitlement may be withdrawn. Contact support
-        about billing errors or refund requests. Statutory cancellation, refund and consumer rights
-        remain unaffected. Where immediate supply of digital services requires express consent or
-        acknowledgment of withdrawal rights, the operator must configure that checkout process
-        before selling in the relevant market.
+        The Ownspace name, branding, interface and software belong to their respective rights
+        holders. Your use of the editor does not transfer those rights. Open-source components
+        remain subject to their own licenses.{" "}
+        <Link href="/copyright">Read about copyright and IP concerns</Link>.
       </p>
-      <h2>Availability and limits</h2>
       <p>
-        We aim to keep Ownspace available, but maintenance, faults and provider outages may
-        interrupt access. Images have upload and size limits shown in the editor. We may apply
-        proportionate measures to prevent abuse. Export your content if you need an independent
-        copy. We do not promise uninterrupted service, a particular number of visitors, or a
-        business outcome.
+        Pages may link to third-party websites. Their terms and privacy practices apply when you
+        visit them. A link on a user page does not mean Ownspace endorses that person, website,
+        product or claim. You control which optional integrations you connect and the content you
+        choose to import. The editor accepts supported content blocks; arbitrary scripts, executable
+        HTML and third-party embeds are not supported.
       </p>
-      <h2>Removing your page or account</h2>
+      <h2 id="premium">3. Free pages and the Premium upgrade</h2>
       <p>
-        You can unpublish a page, delete a page or delete your account in Settings. Account deletion
-        removes access to account-bound upgrades. We may suspend accounts for serious or repeated
-        violations, and provide an explanation and contact route where appropriate and legally
-        permitted.
+        Free and Premium features and limits are described on the{" "}
+        <Link href="/pricing">pricing page</Link> and in the editor. Premium is a one-time upgrade
+        for the purchasing account, with no recurring subscription. The currency, price and any
+        applicable charges must be shown before you confirm payment. A marketing price does not
+        override the amount you approve at checkout.
       </p>
-      <h2>External links</h2>
       <p>
-        User pages may link to third-party services. Those services have their own terms and privacy
-        practices. A user’s link does not imply endorsement by Ownspace.
+        When payments are enabled, Stripe handles checkout. Ownspace activates Premium after payment
+        is verified, which may take time after you return from checkout. A one-time payment does not
+        guarantee that the service will operate forever. Purchased features may evolve, subject to
+        the terms shown at purchase and mandatory consumer protections.
       </p>
-      <h2>Liability and applicable law</h2>
       <p>
-        Nothing in these terms excludes liability or rights that cannot lawfully be excluded. Any
-        limitation applies only to the extent permitted by applicable law.{" "}
+        A verified full refund or payment dispute may remove the related Premium entitlement. A
+        payment problem does not transfer ownership of your content to the operator. Billing errors,
+        duplicate charges, failed activation and other purchase issues are covered by the{" "}
+        <Link href="/refunds">refund policy</Link>.
       </p>
-      {siteConfig.jurisdiction && (
+      <h2 id="availability">4. Availability, changes and ending use</h2>
+      <p>
+        We use reasonable efforts to provide the service, but maintenance, provider outages,
+        security incidents and faults may interrupt it. We do not promise uninterrupted access, a
+        particular audience or business results. Keep an independent export of content you need.
+        Upload limits and supported formats are shown in the editor.
+      </p>
+      <p>
+        You can stop using Ownspace, take a published page offline, delete a page or delete your
+        account using Studio Settings. Account deletion removes account-bound access, including
+        upgrades. Export first if you want a copy.{" "}
+        <Link href="/privacy-choices">See the deletion and export instructions</Link>. Refund and
+        statutory rights are considered separately from account deletion.
+      </p>
+      <p>
+        We may restrict content or suspend access when reasonably needed to address a serious or
+        repeated policy violation, a security risk, unlawful activity or a legal requirement. Where
+        appropriate and legally permitted, we will explain the reason and provide a way to ask for
+        review. Urgent risks may require action first. Enforcement should be proportionate to the
+        concern and its impact.
+      </p>
+      <p>
+        If we discontinue a paid feature or the service, we will give reasonable notice where
+        practicable and provide an opportunity to export, subject to urgent legal or security
+        restrictions. Any remedy owed under the purchase agreement or mandatory law remains
+        available.
+      </p>
+      <h2 id="disputes">5. Your legal protections and complaints</h2>
+      <p>
+        Nothing here excludes liability for fraud, intentional misconduct, or other liability that
+        cannot lawfully be limited. Mandatory warranties, consumer remedies and other non-waivable
+        rights remain in effect. We do not impose a mandatory arbitration agreement, class-action
+        waiver or fixed monetary liability cap in these terms.
+      </p>
+      {siteConfig.jurisdiction ? (
         <p>
-          These terms are governed by the laws of {siteConfig.jurisdiction}, subject to any
-          mandatory protections that apply where you live.
+          The laws of {siteConfig.jurisdiction} govern this agreement, subject to mandatory
+          protections that apply where you live. These terms do not remove access to a court or
+          authority that applicable law makes available to you.
+        </p>
+      ) : (
+        <p>
+          The operator’s country and governing-law details are pending. No country, exclusive court
+          or legal venue has been selected in this draft.
         </p>
       )}
-      <h2>Changes and complaints</h2>
       <p>
-        Material changes to these terms should be communicated before they take effect where
-        required. Contact the operator for complaints, purchase issues or policy questions. Your
-        right to contact a competent consumer authority or court is unaffected.
+        Contact the operator about account, purchase or policy complaints, describing the issue and
+        the outcome you seek. You may also contact a competent consumer, privacy or other authority.
+        We will assess rights requests and complaints under the law that applies; this policy does
+        not shorten a legal deadline.
+      </p>
+      <h3>Changes to this agreement</h3>
+      <p>
+        We may update these terms to reflect service or legal changes. The version at the top
+        identifies this document. We will give notice of material changes and seek renewed agreement
+        where required, rather than treat optional tracking consent as agreement to a new contract.
+        Changes do not retroactively remove accrued rights. If a provision cannot be enforced, the
+        remaining provisions continue to apply to the extent permitted by law.
       </p>
     </LegalShell>
   );

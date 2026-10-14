@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { siteConfig, getSiteUrl } from "./config";
+import { isLaunchBlocked } from "./deployment";
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -9,7 +10,15 @@ export class ApiError extends Error {
     super(message);
   }
 }
+export function assertServiceReady() {
+  if (isLaunchBlocked())
+    throw new ApiError(
+      "Account features are temporarily unavailable while setup is completed.",
+      503,
+    );
+}
 export async function ownerId() {
+  assertServiceReady();
   if (!siteConfig.authEnabled || !process.env.CLERK_SECRET_KEY)
     throw new ApiError("Sign-in is not configured. You can try the local preview.", 503);
   const { userId } = await auth();
@@ -17,6 +26,7 @@ export async function ownerId() {
   return userId;
 }
 export function assertOrigin(request: Request) {
+  assertServiceReady();
   const origin = request.headers.get("origin");
   const expected =
     process.env.NODE_ENV === "production" && process.env.OWNSPACE_LOCAL_PREVIEW !== "1"

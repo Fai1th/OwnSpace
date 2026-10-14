@@ -3,9 +3,9 @@ import { ownerId, apiError } from "@/lib/http";
 export async function GET() {
   try {
     const owner = await ownerId();
-    const data = await (await getRepository()).get(owner);
+    const data = await (await getRepository()).exportAccount(owner);
     return new Response(
-      JSON.stringify({ exportedAt: new Date().toISOString(), profile: data }, null, 2),
+      JSON.stringify({ exportedAt: new Date().toISOString(), ...data }, null, 2),
       {
         headers: {
           "Content-Type": "application/json",

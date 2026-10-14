@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ListIcon, XIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { Logo } from "./logo";
-import { AuthControls } from "./auth-controls";
+import { AuthControls, MobileSignIn } from "./auth-controls";
 import { siteConfig } from "@/lib/config";
 export function Navigation() {
   const [open, setOpen] = useState(false);
@@ -20,6 +20,14 @@ export function Navigation() {
         <Link href="/pricing" onClick={() => setOpen(false)}>
           Pricing
         </Link>
+        {open &&
+          (siteConfig.authEnabled ? (
+            <MobileSignIn onNavigate={() => setOpen(false)} />
+          ) : (
+            <Link className="mobile-account-link" href="/sign-in" onClick={() => setOpen(false)}>
+              Sign in
+            </Link>
+          ))}
       </nav>
       <div className="nav-actions">
         {siteConfig.authEnabled ? (

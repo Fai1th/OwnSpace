@@ -1,0 +1,157 @@
+.page.page {
+  max-width: 920px;
+  padding: 64px 28px 96px;
+  overflow-wrap: anywhere;
+}
+.page.page h1 {
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.2;
+  margin-top: 16px;
+}
+.page.page h2 {
+  font-size: 22px;
+  margin-top: 36px;
+  scroll-margin-top: 100px;
+}
+.page.page h3 {
+  font-size: 17px;
+  margin: 22px 0 8px;
+}
+.page.page p,
+.page.page li {
+  font-size: 15px;
+  line-height: 1.85;
+}
+.page.page article p + p {
+  margin-top: 12px;
+}
+.page.page .version {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 10px 0 24px;
+}
+.page.page .back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 28px;
+  font-size: 13px;
+}
+.draft strong {
+  color: var(--accent);
+}
+.page.page .draft p {
+  margin: 7px 0 0;
+  font-size: 14px;
+}
+.contents,
+.related {
+  border-block: 1px solid var(--line);
+  padding: 18px 0;
+  margin: 30px 0;
+}
+.contents ul,
+.related ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  list-style: none;
+  padding: 8px 0 0;
+}
+.contents a,
+.related a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+.page.page .cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin-top: 24px;
+}
+.page.page .cards li {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+}
+.page.page .cards a {
+  font-size: 18px;
+  font-weight: 700;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.page.page .cards p {
+  margin-top: 8px;
+  font-size: 14px;
+}
+.contact {
+  border-top: 1px solid var(--line);
+  margin-top: 42px;
+}
+.page.page .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0;
+}
+.page.page .actions a,
+.page.page .actions button {
+  min-height: 44px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.page.page .provider {
+  border: 1px solid var(--line);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+.page.page .provider h3 {
+  margin-top: 0;
+}
+.page.page .provider p {
+  font-size: 14px;
+  margin-top: 8px;
+}
+.page.page dl {
+  font-size: 15px;
+  line-height: 1.85;
+}
+.page.page dt {
+  font-weight: 700;
+  margin-top: 18px;
+}
+.page.page dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+.page.page a:focus-visible,
+.page.page button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+.footer.footer nav {
+  gap: 4px 18px;
+}
+.footer.footer nav a,
+.footer.footer nav button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .page.page {
+    padding: 36px 20px 64px;
+  }
+  .page.page .cards {
+    grid-template-columns: 1fr;
+  }
+  .page.page .back {
+    margin-bottom: 16px;
+  }
+}

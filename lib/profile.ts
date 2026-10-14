@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { websiteSchema } from "./website";
 const reserved = new Set([
   "api",
   "studio",
@@ -25,6 +26,13 @@ const reserved = new Set([
   "help",
   "legal",
   "dashboard",
+  "editor",
+  "acceptable-use",
+  "refunds",
+  "copyright",
+  "subprocessors",
+  "privacy-choices",
+  "privacy-rights",
 ]);
 export function normalizeHandle(value: string) {
   return value.trim().toLowerCase();
@@ -93,6 +101,7 @@ export const profileSchema = z.object({
   font: z.enum(["manrope", "mono"]),
   layout: z.enum(["stack", "grid"]),
   showBrand: z.boolean(),
+  website: websiteSchema.optional(),
 });
 export type Profile = z.infer<typeof profileSchema>;
 export type ProfileRecord = {

@@ -133,6 +133,9 @@ select:focus-visible {
 .quiet-link:hover {
   color: var(--ink);
 }
+.mobile-account-link {
+  display: none;
+}
 .nav-actions {
   display: flex;
   align-items: center;
@@ -1901,6 +1904,10 @@ select:focus-visible {
   }
   .nav-links.open {
     display: flex;
+    flex-wrap: wrap;
+  }
+  .nav-links.open .mobile-account-link {
+    display: block;
   }
   .hero {
     grid-template-columns: 1fr;
