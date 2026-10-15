@@ -61,7 +61,6 @@ export function Phone({ profile }: { profile: Profile }) {
           rx.set(7);
           ry.set(-16);
         }}
-        aria-label="Reset phone angle"
       >
         <ArrowCounterClockwiseIcon />
         Reset view

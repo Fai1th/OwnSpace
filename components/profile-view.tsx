@@ -17,7 +17,7 @@ export function ProfileView({
   const style = { "--profile-accent": profile.accent } as React.CSSProperties;
   if (profile.site?.mode === "website")
     return (
-      <SiteCanvas profile={profile} compact={compact}>
+      <SiteCanvas profile={profile} compact={compact} interactive={interactive}>
         {websiteContent !== undefined
           ? websiteContent
           : profile.website && (

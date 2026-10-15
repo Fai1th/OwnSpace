@@ -7,10 +7,12 @@ export function SiteCanvas({
   profile,
   children,
   compact = false,
+  interactive = true,
 }: {
   profile: Profile;
   children: ReactNode;
   compact?: boolean;
+  interactive?: boolean;
 }) {
   const site = profile.site || defaultSiteSettings;
   const image =
@@ -31,9 +33,13 @@ export function SiteCanvas({
       <div className="site-content">{children}</div>
       {profile.showBrand && (
         <footer className="site-brand">
-          <a href="/" rel="noopener">
-            Made with Ownspace
-          </a>
+          {interactive ? (
+            <a href="/" rel="noopener">
+              Made with Ownspace
+            </a>
+          ) : (
+            <span>Made with Ownspace</span>
+          )}
         </footer>
       )}
     </article>
