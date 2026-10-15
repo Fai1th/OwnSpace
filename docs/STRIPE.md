@@ -16,6 +16,8 @@ Add these in Vercel for the intended environment, and in ignored `.env.local` fo
 | `NEXT_PUBLIC_PREMIUM_PRICE_AMOUNT` | Amount in the currency's Stripe minor unit, e.g. `1200` for USD12.                                                                                                |
 | `NEXT_PUBLIC_CURRENCY`             | Price currency, e.g. `USD`.                                                                                                                                       |
 
+For a local dotenv file, escape dollar signs: `NEXT_PUBLIC_PREMIUM_PRICE_LABEL=\$12`. In Vercel’s environment-variable field, enter plain `$12` without a backslash. Quoting the dotenv value alone does not prevent Next.js variable expansion.
+
 The three Stripe server variables must be supplied together. Price label/amount/currency default to USD12; configure all three to match your actual product. The app checks the active Price's amount, currency and one-time type before opening checkout. Hosted Checkout does not require a browser Stripe publishable key.
 
 For a restricted key, grant Checkout Sessions **write/read**, Prices **read**, and PaymentIntents **read** (for expanded delayed-payment status). No customer write, refund creation, balance, transfer or payout permissions are used.
