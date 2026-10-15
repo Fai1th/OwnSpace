@@ -68,6 +68,8 @@ For a repeatable paid browser check, stop the local server, set `OWNSPACE_LOCAL_
 
 ## Optional one-time Premium
 
+Exact variables, restricted-key permissions, dashboard configuration and activation steps: [Stripe setup](docs/STRIPE.md). Open `/dashboard/billing` to upgrade before or after creating a website. Pricing, dashboard, canvas and account settings all link there.
+
 Set all three Stripe variables together. Configure an active **one-time** price, price amount in minor currency units, displayed price label and currency. The default design uses $12 USD, but these values are configuration, not provider identifiers.
 
 Use a separate Stripe sandbox while testing. Prefer a restricted API key with the permissions required to read prices and Checkout line items and create Checkout Sessions. Configure your Terms/Privacy/support URLs in Stripe's public business settings; checkout requires terms acceptance.
@@ -80,7 +82,7 @@ Webhook URL: `/api/webhooks/stripe`. Subscribe to:
 - `charge.dispute.created`
 - `charge.dispute.closed`
 
-Entitlement is granted only by a verified webhook, never by the success URL. After returning from checkout, the editor makes bounded, lightweight status checks and offers a manual check for delayed payments. These checks never overwrite draft content or refresh its concurrency version. Premium is read from the account’s purchases even when its page has been deleted. Events are idempotent; refund tombstones prevent late completion from re-granting refunded purchases. Full refunds revoke an upgrade. Pending disputes suspend the disputed purchase; a won or closed inquiry restores it, while a lost dispute keeps it revoked. Settled dispute results survive late opening or checkout events. Page deletion keeps the purchase on the account; account deletion removes the association. Keep Stripe financial retention and refund policies aligned with applicable law.
+Entitlement is granted only by a verified webhook, never by the success URL. Checkout validates the configured active one-time Price and reuses open sessions across tabs; persistent retry seeds protect ambiguous network failures. Expired/failed sessions can be retried, while completed payments awaiting confirmation block another checkout. After returning from checkout, the billing screen makes bounded status checks and offers a manual check for delayed payments. These checks never overwrite draft content or refresh its concurrency version. The billing screen distinguishes delayed failure and a pending repurchase from an older refund. Premium is read from the account’s purchases even when its page has been deleted. Events are idempotent; refund tombstones prevent late completion from re-granting refunded purchases. Full refunds revoke an upgrade. Pending disputes suspend the disputed purchase; a won or closed inquiry restores it, while a lost dispute keeps it revoked. Settled dispute results survive late opening or checkout events. Page deletion keeps the purchase on the account; account deletion removes the association. Keep Stripe financial retention and refund policies aligned with applicable law.
 
 The current integration does not automatically collect sales tax. Configure registrations and the correct tax treatment before selling in jurisdictions requiring collection. No tax-compliance claim is made by this code.
 

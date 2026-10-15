@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { sanitizeProfile, canUsePremium, type Profile, type ProfileRecord } from "./profile";
 import { assertPlanAllows } from "./plans";
 export type QueryDb = {
@@ -10,6 +11,8 @@ CREATE TABLE IF NOT EXISTS handles(handle TEXT PRIMARY KEY,owner TEXT NOT NULL);
 INSERT INTO handles(handle,owner) SELECT handle,owner FROM profiles ON CONFLICT DO NOTHING;
 INSERT INTO handles(handle,owner) SELECT published->>'handle',owner FROM profiles WHERE published IS NOT NULL ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS purchases(payment_id TEXT PRIMARY KEY,owner TEXT NOT NULL,status TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS checkout_sessions(session_id TEXT PRIMARY KEY,owner TEXT NOT NULL,price_id TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS checkout_attempts(owner TEXT PRIMARY KEY,attempt_key TEXT NOT NULL,session_id TEXT);
 CREATE TABLE IF NOT EXISTS billing_events(id TEXT PRIMARY KEY,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
 CREATE TABLE IF NOT EXISTS rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,expires_at TIMESTAMPTZ NOT NULL);
 CREATE TABLE IF NOT EXISTS reports(id BIGSERIAL PRIMARY KEY,handle TEXT NOT NULL,reason TEXT NOT NULL,details TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created_at TIMESTAMPTZ NOT NULL DEFAULT now());
@@ -176,18 +179,104 @@ export class Repository {
       await tx.query("DELETE FROM handles WHERE owner=$1", [owner]);
       await tx.query("DELETE FROM connections WHERE owner=$1", [owner]);
       if (deleteAccount) {
+        await tx.query("DELETE FROM checkout_attempts WHERE owner=$1", [owner]);
+        await tx.query("UPDATE checkout_sessions SET owner='deleted' WHERE owner=$1", [owner]);
         await tx.query("UPDATE purchases SET owner='deleted' WHERE owner=$1", [owner]);
         await tx.query("DELETE FROM user_agreements WHERE owner=$1", [owner]);
       }
+    });
+  }
+  async approvedCheckout(sessionId: string) {
+    const row = (
+      await this.db.query("SELECT owner,price_id FROM checkout_sessions WHERE session_id=$1", [
+        sessionId,
+      ])
+    ).rows[0];
+    return row ? { owner: String(row.owner), priceId: String(row.price_id) } : null;
+  }
+  async revokedPayment(owner: string, paymentId: string) {
+    return (
+      (
+        await this.db.query(
+          "SELECT payment_id FROM purchases WHERE owner=$1 AND payment_id=$2 AND status IN ('refunded','dispute_lost')",
+          [owner, paymentId],
+        )
+      ).rows.length > 0
+    );
+  }
+  async checkoutSession(owner: string) {
+    const row = (
+      await this.db.query("SELECT session_id FROM checkout_attempts WHERE owner=$1", [owner])
+    ).rows[0];
+    return row?.session_id ? String(row.session_id) : null;
+  }
+  async checkout<T>(
+    owner: string,
+    open: (attempt: {
+      key: string;
+      sessionId: string | null;
+      entitlement: string;
+      isRevoked: (paymentId: string) => Promise<boolean>;
+    }) => Promise<{ sessionId: string; priceId: string; value: T }>,
+  ) {
+    // Commit the seed before contacting Stripe so a lost response can be retried safely.
+    await this.db.query(
+      "INSERT INTO checkout_attempts(owner,attempt_key) VALUES($1,$2) ON CONFLICT DO NOTHING",
+      [owner, randomUUID()],
+    );
+    return this.db.transaction(async (tx) => {
+      const row = (
+        await tx.query("SELECT * FROM checkout_attempts WHERE owner=$1 FOR UPDATE", [owner])
+      ).rows[0];
+      const active = await tx.query(
+        "SELECT status FROM purchases WHERE owner=$1 AND status IN ('paid','dispute_won') LIMIT 1",
+        [owner],
+      );
+      const latest = active.rows.length
+        ? active
+        : await tx.query(
+            "SELECT status FROM purchases WHERE owner=$1 ORDER BY created_at DESC LIMIT 1",
+            [owner],
+          );
+      const result = await open({
+        key: String(row.attempt_key),
+        sessionId: row.session_id ? String(row.session_id) : null,
+        entitlement: active.rows.length ? "paid" : String(latest.rows[0]?.status || "free"),
+        isRevoked: async (paymentId) =>
+          (
+            await tx.query(
+              "SELECT payment_id FROM purchases WHERE owner=$1 AND payment_id=$2 AND status IN ('refunded','dispute_lost')",
+              [owner, paymentId],
+            )
+          ).rows.length > 0,
+      });
+      await tx.query(
+        "INSERT INTO checkout_sessions(session_id,owner,price_id) VALUES($1,$2,$3) ON CONFLICT DO NOTHING",
+        [result.sessionId, owner, result.priceId],
+      );
+      await tx.query("UPDATE checkout_attempts SET session_id=$2 WHERE owner=$1", [
+        owner,
+        result.sessionId,
+      ]);
+      return result.value;
     });
   }
   async billing(event: {
     eventId: string;
     owner?: string;
     paymentId: string;
+    sessionId?: string;
     status: "paid" | "refunded" | "disputed" | "dispute_won" | "dispute_lost";
   }) {
     await this.db.transaction(async (tx) => {
+      if (event.sessionId) {
+        const approved = (
+          await tx.query("SELECT owner FROM checkout_sessions WHERE session_id=$1 FOR UPDATE", [
+            event.sessionId,
+          ])
+        ).rows[0];
+        if (approved && (approved.owner === "deleted" || approved.owner !== event.owner)) return;
+      }
       const inserted = await tx.query(
         "INSERT INTO billing_events(id) VALUES($1) ON CONFLICT DO NOTHING RETURNING id",
         [event.eventId],

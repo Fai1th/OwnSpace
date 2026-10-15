@@ -433,6 +433,7 @@ export function WebsiteEditor({ demo }: { demo: boolean }) {
         <Logo compact />
         <Link href="/dashboard">Dashboard</Link>
         <span className="website-editor-label">Website editor</span>
+        <Link href="/dashboard/billing">{premium ? "Premium & billing" : "Unlock Premium"}</Link>
         <span className="website-editor-state">
           {demo ? "Private browser demo" : record?.published ? "Published" : "Private draft"} ·{" "}
           {dirty ? "Unsaved changes" : "Draft saved"}

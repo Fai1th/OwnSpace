@@ -20,21 +20,9 @@ if (process.env.DATABASE_URL) {
   }
 }
 if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PREMIUM_PRICE_ID) {
-  const { default: Stripe } = await import("stripe");
-  const price = await new Stripe(process.env.STRIPE_SECRET_KEY).prices.retrieve(
-    process.env.STRIPE_PREMIUM_PRICE_ID,
-  );
-  const expected = Number(process.env.NEXT_PUBLIC_PREMIUM_PRICE_AMOUNT || "1200");
-  const currency = (process.env.NEXT_PUBLIC_CURRENCY || "USD").toLowerCase();
-  if (
-    !price.active ||
-    price.type !== "one_time" ||
-    price.unit_amount !== expected ||
-    price.currency !== currency
-  )
-    throw Error(
-      "Stripe price must be active, one-time, and match the configured price amount and currency.",
-    );
+  const { stripeClient, assertPremiumPrice } = await import("../lib/billing");
+  const price = await stripeClient().prices.retrieve(process.env.STRIPE_PREMIUM_PRICE_ID);
+  assertPremiumPrice(price);
   console.log("Stripe price matches configuration.");
 }
 console.log(

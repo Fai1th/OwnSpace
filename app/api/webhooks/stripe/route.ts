@@ -1,6 +1,6 @@
 import type Stripe from "stripe";
 import { getRepository } from "@/lib/db";
-import { stripeClient } from "@/lib/billing";
+import { readStripePayload, stripeClient } from "@/lib/billing";
 import { apiError, json, ApiError } from "@/lib/http";
 export async function POST(req: Request) {
   try {
@@ -10,8 +10,7 @@ export async function POST(req: Request) {
       throw new ApiError("Payload too large.", 413);
     const signature = req.headers.get("stripe-signature");
     if (!signature) throw new ApiError("Missing signature.", 400);
-    const raw = await req.text();
-    if (raw.length > 1000000) throw new ApiError("Payload too large.", 413);
+    const raw = await readStripePayload(req);
     const stripe = stripeClient();
     let event: Stripe.Event;
     try {
@@ -31,10 +30,18 @@ export async function POST(req: Request) {
         session.metadata?.purchase_kind === "ownspace-premium" &&
         session.metadata.owner
       ) {
+        if (session.client_reference_id !== session.metadata.owner)
+          throw new ApiError("Unexpected purchase owner.", 400);
+        const approved = await repo.approvedCheckout(session.id);
+        if (approved?.owner === "deleted") return json({ received: true });
+        if (approved && approved.owner !== session.metadata.owner)
+          throw new ApiError("Unexpected purchase owner.", 400);
+        const expectedPrice = approved?.priceId || process.env.STRIPE_PREMIUM_PRICE_ID;
         const items = await stripe.checkout.sessions.listLineItems(session.id, { limit: 10 });
         if (
+          items.has_more ||
           items.data.length !== 1 ||
-          items.data[0].price?.id !== process.env.STRIPE_PREMIUM_PRICE_ID ||
+          items.data[0].price?.id !== expectedPrice ||
           items.data[0].quantity !== 1
         )
           throw new ApiError("Unexpected purchase.", 400);
@@ -42,13 +49,14 @@ export async function POST(req: Request) {
           typeof session.payment_intent === "string"
             ? session.payment_intent
             : session.payment_intent?.id;
-        if (pi)
-          await repo.billing({
-            eventId: event.id,
-            owner: session.metadata.owner,
-            paymentId: pi,
-            status: "paid",
-          });
+        if (!pi) throw new ApiError("Missing payment reference.", 400);
+        await repo.billing({
+          eventId: event.id,
+          sessionId: session.id,
+          owner: session.metadata.owner,
+          paymentId: pi,
+          status: "paid",
+        });
       }
     } else if (event.type === "charge.refunded") {
       const charge = event.data.object as Stripe.Charge;

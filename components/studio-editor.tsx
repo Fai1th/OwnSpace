@@ -1001,15 +1001,17 @@ function Editor({ demo }: { demo: boolean }) {
                     disabled={busy || demo || paymentPending}
                     onClick={() =>
                       void action(async () => {
-                        if (dirty || !record) throw Error("Save your page before upgrading.");
-                        const data = await request("/api/checkout");
-                        location.assign(data.url);
+                        if (dirty) throw Error("Save your page before leaving for billing.");
+                        location.assign("/dashboard/billing");
                       })
                     }
                   >
                     Unlock Premium <ArrowUpRightIcon />
                   </button>
                 )}
+                <p>
+                  <Link href="/dashboard/billing">Billing & purchase status</Link>
+                </p>
                 {demo && <p>Sign in to save online and purchase Premium.</p>}
               </div>
               <div className="setting-box">

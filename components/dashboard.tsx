@@ -136,6 +136,12 @@ export function Dashboard({ demo }: { demo: boolean }) {
             </strong>
             <span>Address, profile details and publishing controls.</span>
           </Link>
+          <Link href="/dashboard/billing">
+            <strong>
+              Premium & billing <span aria-hidden="true">↗</span>
+            </strong>
+            <span>One-time upgrade and payment confirmation.</span>
+          </Link>
           <Link href="/studio?panel=settings">
             <strong>
               Account & settings <span aria-hidden="true">↗</span>
